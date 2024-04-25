@@ -2,6 +2,7 @@ from __future__ import annotations
 from cadmium.llms.ask import LLMModel, LLMProvider, ask_llm
 
 from cadmium.agent.executor import code_example, CadqueryExecutor
+from cadmium.agent.prompts import examples_prompt, fixing_advice
 
 from dataclasses import dataclass, field
 import rich
@@ -31,7 +32,7 @@ class AgentMessage(Message):
     role = "assistant"
     
     def __repr__(self) -> str:
-        return f'{self.thoughts}\n```\n{self.code}\n```'
+        return self.content   # f'{self.thoughts}\n```\n{self.code}\n```'
     
     @classmethod
     def from_message(cls, message: str) -> AgentMessage:
@@ -54,7 +55,10 @@ class CodeExecutionFeedback(Message):
     role = "system"
     
     def __repr__(self) -> str:
-        return f'{self.output}\n\n'
+        err_msg = ''
+        if not self.finished_successfully:
+            err_msg = 'The code execution failed. Please, take a deep breath, write the reasons while it failed, and write the code again with more attention to detail.\n' + fixing_advice
+        return f'{self.output}\n{err_msg}\n'
 
 
 @dataclass
@@ -69,15 +73,17 @@ class UserMessage(Message):
 @dataclass
 class Agent:
     prompt: str
-    model: str = 'llama3-70b-8192'    # 'openai/gpt-4-turbo-2024-04-09'
+    # model: str = 'llama3-70b-8192'    # 'openai/gpt-4-turbo-2024-04-09'
+    model: str = 'openai/gpt-4-turbo-2024-04-09'
     history: list[UserMessage | AgentMessage | CodeExecutionFeedback] = field(default_factory=list)
     executor: CadqueryExecutor = field(default_factory=CadqueryExecutor)
     
     def get_first_messages(self) -> list[UserMessage]:
         return [
-            UserMessage(message="You are a CAD agent called Cadmium. Your gole is to create a CAD model based on the user's description by writing Python code based on Cadquery.\n"
+            UserMessage(message=examples_prompt, role="system"),
+            UserMessage(message="You are a CAD agent called Cadmium. Your goal is to create a CAD model based on the user's description by writing Python code based on Cadquery.\n"
                         "When writing the python code, output the STL to a file in the current directory, then store the filename in the `result` variable.\n"
-                        "Your response should contain your thoughts, then the code inside the code braces, like this:\n"
+                        "Your response should contain your thoughts and a specific description of what you're going to do and what the model will be on a geometric level, then the code inside the code braces, like this:\n"
                         f"```\n{code_example}\n```", role="system"), 
             UserMessage(message=f"Create the following model:\n{self.prompt}")]
     
@@ -91,8 +97,17 @@ class Agent:
     
     def get_next_message(self) -> AgentMessage:
         message_history = [msg.to_dict() for msg in self.history]
-        query = message_history[-1]['content']
-        response = ask_llm(provider=LLMProvider.GROQ, model=LLMModel.GROQ_LLAMA3_70, query=query)
+        # query = message_history[-1]['content']
+        # response = ask_llm(provider=LLMProvider.GROQ, model=LLMModel.GROQ_LLAMA3_70, query=query)
+        if self.model == 'llama3-70b-8192':
+            client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        else:
+            client = openai.OpenAI(api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1", timeout=100)
+        response = client.chat.completions.create(
+            model=self.model,
+            messages=message_history,
+        ).choices[0].message.content
+        print(response)
         return AgentMessage.from_message(response)
 
     def run_step(self) -> list[CodeExecutionFeedback | AgentMessage]:
