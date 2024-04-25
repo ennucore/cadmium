@@ -5,6 +5,7 @@ import tempfile
 from typing import Any
 from dataclasses import dataclass, field
 import random
+import os
 
 
 preamble = '''
@@ -43,7 +44,10 @@ result = spiral_sweep.stl
 '''
 
 
-random_dir = lambda: 'scripts/models/' + str(random.randint(0, 1000000)) + '/'
+def random_dir():
+    d = 'scripts/models/' + str(random.randint(0, 1000000)) + '/'
+    os.mkdir(d)
+    return d
 
 
 @dataclass
