@@ -1,6 +1,6 @@
 import os
 import sys
-from yourapp.stl_to_pics.render import render
+from cadmium.stl_to_pics.render import render
 
 
 if __name__ == "__main__":
