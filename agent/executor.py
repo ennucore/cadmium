@@ -49,6 +49,14 @@ def random_dir():
     os.mkdir(d)
     return d
 
+def get_parameters(script_path):
+
+    with open(script_path, 'r') as file:
+        for line in file:
+            print(line)
+            if line.startswith("# Parameters"):
+                return True
+    return False
 
 @dataclass
 class CadqueryExecutor:
