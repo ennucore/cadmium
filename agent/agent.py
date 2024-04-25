@@ -25,6 +25,19 @@ class Message(ABC):
     def to_dict(self) -> dict:
         return {"content": repr(self), "role": self.role}
     
+    def to_rich_dict(self) -> dict:
+        return {"type": self.__class__.__name__, **self.__dict__}
+    
+    def from_rich_dict(cls, d: dict):
+        if d['type'] == 'AgentMessage':
+            return AgentMessage(content=d['content'], code=d['code'], thoughts=d['thoughts'])
+        elif d['type'] == 'CodeExecutionFeedback':
+            return CodeExecutionFeedback(content=d['content'], output=d['output'], finished_successfully=d['finished_successfully'], result=d['result'])
+        elif d['type'] == 'UserMessage':
+            return UserMessage(message=d['message'])
+        else:
+            return cls(content=d['content'], role=d['role'])
+    
 
 @dataclass
 class AgentMessage(Message):
@@ -75,8 +88,8 @@ class UserMessage(Message):
 @dataclass
 class Agent:
     # model: str = 'llama3-70b-8192'    # 'openai/gpt-4-turbo-2024-04-09'
-    model: str = 'meta-llama/llama-3-70b-instruct:nitro'
-    # model: str = 'openai/gpt-4-turbo-2024-04-09'
+    # model: str = 'meta-llama/llama-3-70b-instruct:nitro'
+    model: str = 'openai/gpt-4-turbo-2024-04-09'
     history: list[UserMessage | AgentMessage | CodeExecutionFeedback] = field(default_factory=list)
     executor: CadqueryExecutor = field(default_factory=CadqueryExecutor)
     
@@ -128,11 +141,25 @@ class Agent:
             rich.print(self.history[-1])
             rich.print(self.history[-1])
         return getattr(self.history[-1], 'result', None)
+    
+    def clone(self) -> Agent:
+        c = deepcopy(self)
+        c.executor = CadqueryExecutor()
+        return c
 
     def run_multiply(self, times: int):
         # create copies of self and run them in parallel
-        copies = [deepcopy(self) for _ in range(times)]
+        copies = [self.clone() for _ in range(times)]
         with ThreadPool(times) as pool:
             results = pool.map(lambda agent: (agent.run_agent(), agent), copies)
         agents = [result[1] for result in results]
-        return agents, [result[0] for result in results]
+        return agents, [result[1].executor.base_dir + result[0] for result in results]
+
+    def to_dict(self) -> dict:
+        return {"model": self.model, "history": [msg.to_rich_dict() for msg in self.history]}
+    
+    def from_dict(cls, d: dict) -> Agent:
+        self = cls()
+        self.model = d['model']
+        self.history = [Message.from_rich_dict(msg) for msg in d['history']]
+        return self

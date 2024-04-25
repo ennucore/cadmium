@@ -3,6 +3,8 @@ from __future__ import annotations
 import subprocess
 import tempfile
 from typing import Any
+from dataclasses import dataclass, field
+import random
 
 
 preamble = '''
@@ -41,14 +43,20 @@ result = spiral_sweep.stl
 '''
 
 
+random_dir = lambda: 'scripts/models/' + str(random.randint(0, 1000000)) + '/'
+
+
+@dataclass
 class CadqueryExecutor:
+    base_dir: str = field(default_factory=random_dir)
+    
     def execute(self, script: str) -> (str, Any, bool):
         with tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False) as f:
             postfix = '\nprint("<RESULT>" + str(result) + "</RESULT>")\n'
             f.write(preamble + script + postfix)
             script_path = f.name
         try:
-            output = subprocess.check_output(['python', script_path], stderr=subprocess.STDOUT)
+            output = subprocess.check_output(['python', script_path], stderr=subprocess.STDOUT, cwd=self.base_dir)
             result = output.decode().split('<RESULT>')[1].split('</RESULT>')[0] if '<RESULT>' in output.decode() else None
             return output.decode(), result, True
         except subprocess.CalledProcessError as e:
