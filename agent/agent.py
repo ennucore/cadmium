@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cadmium.llms.ask import LLMModel, LLMProvider, ask_llm
 
 from cadmium.agent.executor import code_example, CadqueryExecutor
 
@@ -11,13 +12,6 @@ from abc import ABC
 from dotenv import load_dotenv
 
 load_dotenv()
-
-
-openrouter_client = openai.Client(
-    api_key=os.getenv('OPENROUTER_API_KEY'),
-    base_url="https://openrouter.ai/api/v1"
-)
-
 
 @dataclass
 class AgentFactory:
@@ -44,6 +38,8 @@ class AgentMessage(Message):
         return cls(content=message,
                    thoughts=message.split('\n```')[0],
                    code=message.split('\n```', 1)[1].split('\n', 1)[1].strip().split('```')[0])
+
+    
     
     def run_code(self, executor: CadqueryExecutor) -> CodeExecutionFeedback:
         output, result, finished_successfully = executor.execute(self.code)
@@ -95,20 +91,14 @@ class Agent:
     
     def get_next_message(self) -> AgentMessage:
         message_history = [msg.to_dict() for msg in self.history]
-        if os.getenv("GROQ_API_KEY") or self.model == 'llama3-70b-8192':
-            client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        else:
-            client = openrouter_client
-        response = client.chat.completions.create(
-            model=self.model,
-            messages=message_history,
-        ).choices[0].message.content
-        print(response)
+        query = message_history[-1]['content']
+        response = ask_llm(provider=LLMProvider.GROQ, model=LLMModel.GROQ_LLAMA3_70, query=query)
         return AgentMessage.from_message(response)
-    
+
     def run_step(self) -> list[CodeExecutionFeedback | AgentMessage]:
         next_message = self.get_next_message()
         self.history.append(next_message)
+
         return [next_message, next_message.run_code(self.executor)]
 
     def run_agent(self) -> None:
