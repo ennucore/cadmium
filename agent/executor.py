@@ -45,7 +45,7 @@ result = spiral_sweep.stl
 
 
 def random_dir():
-    d = 'scripts/models/' + str(random.randint(0, 1000000)) + '/'
+    d = 'cadmium/scripts/models/' + str(random.randint(0, 1000000)) + '/'
     os.mkdir(d)
     return d
 

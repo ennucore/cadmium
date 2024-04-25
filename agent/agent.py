@@ -59,7 +59,9 @@ class AgentMessage(Message):
     
     def run_code(self, executor: CadqueryExecutor) -> CodeExecutionFeedback:
         output, result, finished_successfully = executor.execute(self.code)
-        return CodeExecutionFeedback(output=output, result=result, finished_successfully=finished_successfully)
+        if result:
+            rich.print(f'[red]{executor.base_dir + str(result)}[/red]')
+        return CodeExecutionFeedback(output=output, result=(executor.base_dir + result) if result else None, finished_successfully=finished_successfully)
 
 
 @dataclass
@@ -98,6 +100,7 @@ class Agent:
             UserMessage(message=examples_prompt, role="system"),
             UserMessage(message="You are a CAD agent called Cadmium. Your goal is to create a CAD model based on the user's description by writing Python code based on Cadquery.\n"
                         "When writing the python code, output the STL to a file in the current directory, then store the filename in the `result` variable.\n"
+                        "Before writing the code, first write a numbered list of all the small parts you will have in your model, their position and direction.\n"
                         "Your response should contain your thoughts and a specific description of what you're going to do and what the model will be on a geometric level, then the code inside the code braces, like this:\n"
                         f"```\n{code_example}\n```", role="system"), 
             UserMessage(message=f"Create the following model:\n{prompt}")]
@@ -152,7 +155,7 @@ class Agent:
         with ThreadPool(times) as pool:
             results = pool.map(lambda agent: (agent.run_agent(), agent), copies)
         agents = [result[1] for result in results]
-        return agents, [result[1].executor.base_dir + result[0] for result in results]
+        return agents, [result[0] for result in results]
 
     def to_dict(self) -> dict:
         return {"model": self.model, "history": [msg.to_rich_dict() for msg in self.history]}
