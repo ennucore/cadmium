@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 import rich
 import os
 import openai
+from groq import Groq
 from abc import ABC
 from dotenv import load_dotenv
 
@@ -72,7 +73,7 @@ class UserMessage(Message):
 @dataclass
 class Agent:
     prompt: str
-    model: str = 'openai/gpt-4-turbo-2024-04-09'
+    model: str = 'llama3-70b-8192'    # 'openai/gpt-4-turbo-2024-04-09'
     history: list[UserMessage | AgentMessage | CodeExecutionFeedback] = field(default_factory=list)
     executor: CadqueryExecutor = field(default_factory=CadqueryExecutor)
     
@@ -94,7 +95,11 @@ class Agent:
     
     def get_next_message(self) -> AgentMessage:
         message_history = [msg.to_dict() for msg in self.history]
-        response = openrouter_client.chat.completions.create(
+        if os.getenv("GROQ_API_KEY") or self.model == 'llama3-70b-8192':
+            client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        else:
+            client = openrouter_client
+        response = client.chat.completions.create(
             model=self.model,
             messages=message_history,
         ).choices[0].message.content
@@ -107,7 +112,7 @@ class Agent:
         return [next_message, next_message.run_code(self.executor)]
 
     def run_agent(self) -> None:
-        while True:  # not self.history[-1].finished_successfully:
+        while not getattr(self.history[-1], 'finished_successfully', False):
             self.history.extend(self.run_step())
             rich.print(self.history[-1])
             rich.print(self.history[-1])
