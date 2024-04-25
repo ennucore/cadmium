@@ -112,9 +112,8 @@ class Agent:
     
     def get_next_message(self) -> AgentMessage:
         message_history = [msg.to_dict() for msg in self.history]
-        # query = message_history[-1]['content']
-        # response = ask_llm(provider=LLMProvider.GROQ, model=LLMModel.GROQ_LLAMA3_70, query=query)
-        if '/' not in self.model:
+        #response = ask_llm(provider=LLMProvider.GROQ, model=LLMModel.GROQ_LLAMA3_70, query=message_history)
+        if self.model == 'llama3-70b-8192':
             client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         else:
             client = openai.OpenAI(
