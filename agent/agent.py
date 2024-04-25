@@ -122,7 +122,8 @@ class Agent:
             client = openai.OpenAI(
                 api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1", 
                 timeout=100
-                )
+            )
+
         response = client.chat.completions.create(
             model=self.model,
             messages=message_history,

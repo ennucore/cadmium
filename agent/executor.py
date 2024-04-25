@@ -81,14 +81,20 @@ def get_parameters(script_path):
 class CadqueryExecutor:
     base_dir: str = field(default_factory=random_dir)
     
-    def execute(self, script: str) -> (str, Any, bool):
+    def execute(self, script: str) -> tuple[str, Any, bool]:
         with tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False) as f:
             postfix = '\nprint("<RESULT>" + str(result) + "</RESULT>")\n'
             f.write(preamble + script + postfix)
             script_path = f.name
         try:
-            output = subprocess.check_output(['python', script_path], stderr=subprocess.STDOUT, cwd=self.base_dir)
-            result = output.decode().split('<RESULT>')[1].split('</RESULT>')[0] if '<RESULT>' in output.decode() else None
-            return output.decode(), result, True
-        except subprocess.CalledProcessError as e:
-            return e.output.decode(), None, False
+            process = subprocess.Popen(['python', script_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self.base_dir, universal_newlines=True)
+            output, _ = process.communicate()
+            if '<RESULT>' in output:
+                result = output.split('<RESULT>')[1].split('</RESULT>')[0]
+                return output, result, True
+            else:
+                return output, None, False
+        except Exception as e:
+            print("===================================================")
+            print(e)
+            return str(e), None, False
