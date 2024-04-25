@@ -6,6 +6,7 @@ from typing import Any
 from dataclasses import dataclass, field
 import random
 import os
+import json
 
 
 preamble = '''
@@ -49,7 +50,7 @@ def random_dir():
     os.mkdir(d)
     return d
 
-def get_parameters(script_path):
+def get_params(script_path):
 
     parameters = {}
 
@@ -89,8 +90,15 @@ class CadqueryExecutor:
         try:
             process = subprocess.Popen(['python', script_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self.base_dir, universal_newlines=True)
             output, _ = process.communicate()
+
             if '<RESULT>' in output:
                 result = output.split('<RESULT>')[1].split('</RESULT>')[0]
+
+                params = get_params(script_path=script_path)
+                params_file_path = os.path.join(self.base_dir, 'params.json')
+                with open(params_file_path, 'w') as params_file:
+                    json.dump(params, params_file, indent=4)
+
                 return output, result, True
             else:
                 return output, None, False
