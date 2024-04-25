@@ -16,7 +16,7 @@ import numpy as np
 '''
 
 code_example = '''pitch = 5
-height = 20
+height = 20 
 turns = 4
 radius = 5
 
@@ -51,12 +51,31 @@ def random_dir():
 
 def get_parameters(script_path):
 
+    parameters = {}
+
     with open(script_path, 'r') as file:
-        for line in file:
-            print(line)
-            if line.startswith("# Parameters"):
-                return True
-    return False
+        lines = file.readlines()
+        for i in range(len(lines)):
+            if lines[i].startswith("# Parameters"):
+                for j in range(i + 1, len(lines)):
+                    if lines[j].strip() == "":
+                        return parameters
+                    
+                    line = lines[j].strip().split("=")
+                    if len(line) == 2:
+                        var_name = line[0].strip()
+                        
+                        rest_line = line[1].strip().split("#")
+
+                        var_value = rest_line[0].strip()
+
+                        if len(rest_line) > 1:
+                            var_unit = rest_line[1].strip()
+                        else:
+                            var_unit = None
+                        
+                        parameters[var_name] = {'value': var_value, 'unit': var_unit}
+    return parameters 
 
 @dataclass
 class CadqueryExecutor:
