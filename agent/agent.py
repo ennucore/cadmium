@@ -61,10 +61,10 @@ class AgentMessage(Message):
         return cls(
             content=message,
             thoughts=message.split("\n```")[0],
-            code=message.split("\n```", 1)[1].split("\n", 1)[1].strip().split("```")[0],
+            code=message.split("\n```", 1)[1].split("\n", 1)[1].strip().split("```")[0] if "\n```" in message else "",
         )
 
-    def run_code(self, executor: CadqueryExecutor) -> CodeExecutionFeedback:
+    def run_code(self, executor: CadqueryExecutor) -> CodeExecutionFeedback | None:
         output, result, finished_successfully = executor.execute(self.code)
         if result:
             rich.print(f"[red]{executor.base_dir + str(result)}[/red]")
@@ -118,7 +118,7 @@ class Agent:
                         "When writing the python code, output the STL to a file in the current directory, then store the filename in the `result` variable.\n"
                         "Before writing the code, first write a numbered list of all the small parts you will have in your model, their position relative to all the other elements, sizes, and direction.\n"
                         "Your response should contain your thoughts and a specific description of what you're going to do and what the model will be on a geometric level, then the code inside the code braces, like this:\n"
-                        f"```\n{code_example}\n```", role="system"), 
+                        f"```\n{code_example}\n```\n\nNote that you should always have the code and you cannot ask follow-ups", role="system"), 
             UserMessage(message=f"Create the following model:\n{prompt}")]
     
     @classmethod
@@ -153,17 +153,30 @@ class Agent:
         print(response)
         return AgentMessage.from_message(response)
 
+    def add_user_message(self, message: str) -> None:
+        self.history.append(UserMessage(message=message))
+    
+    def get_latest_chatbot_message(self) -> str:
+        try:
+            latest_message = [msg for msg in self.history if msg.role == "assistant"][-1]
+            return latest_message.content
+        except IndexError:
+            return ""
+        
+
     def run_step(self) -> list[CodeExecutionFeedback | AgentMessage]:
         next_message = self.get_next_message()
         self.history.append(next_message)
+        code_feedback = next_message.run_code(self.executor)
 
-        return [next_message, next_message.run_code(self.executor)]
+        return [next_message] + ([code_feedback] if code_feedback else [])
 
-    def run_agent(self) -> None | str:
-        while not getattr(self.history[-1], "finished_successfully", False):
+    def run_agent(self, max_iters: int = 5) -> None | str:
+        while not getattr(self.history[-1], "finished_successfully", False) and max_iters > 0:
             self.history.extend(self.run_step())
             rich.print(self.history[-1])
             rich.print(self.history[-1])
+            max_iters -= 1
         return getattr(self.history[-1], "result", None)
 
     def clone(self) -> Agent:
