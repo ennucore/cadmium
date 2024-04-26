@@ -50,6 +50,7 @@ def random_dir():
     os.mkdir(d)
     return d
 
+
 def get_params(script_path):
 
     parameters = {}
