@@ -176,7 +176,7 @@ class Agent:
 
         return [next_message] + ([code_feedback] if code_feedback else [])
 
-    def run_agent(self, max_iters: int = 5, streaming_callback=None) -> None | str:
+    def run_agent(self, max_iters: int = 7, streaming_callback=None) -> None | str:
         if streaming_callback:
             streamer = RecapStreamer(callback_function=streaming_callback).stream_non_blocking
         while not getattr(self.history[-1], "finished_successfully", False) and max_iters > 0:
