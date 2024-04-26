@@ -6,7 +6,10 @@ from cadmium.agent.prompts import examples_prompt, fixing_advice
 from dataclasses import dataclass, field
 import rich
 import os
+import json
 import openai
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
 from groq import Groq
 from abc import ABC
 from dotenv import load_dotenv
@@ -136,20 +139,17 @@ class Agent:
             client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         else:
             client = openai.OpenAI(
-                api_key=os.getenv("OPENROUTER_API_KEY"),
-                base_url="https://openrouter.ai/api/v1",
-                timeout=100,
+                # api_key=os.getenv("OPENAI_API_KEY"),
+                api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1", 
+                timeout=100
             )
 
-        response = (
-            client.chat.completions.create(
-                model=self.model,
-                messages=message_history,
-                temperature=0.4,
-            )
-            .choices[0]
-            .message.content
-        )
+        response = client.chat.completions.create(
+            model=self.model,
+            # model="gpt-4-turbo-2024-04-09",
+            messages=message_history,
+            temperature=0.4,
+        ).choices[0].message.content
         print(response)
         return AgentMessage.from_message(response)
 
@@ -190,3 +190,71 @@ class Agent:
         self.model = d["model"]
         self.history = [Message.from_rich_dict(msg) for msg in d["history"]]
         return self
+
+    def change_params(self, new_params: dict) -> str:
+        found_code_feedback = False
+
+        for history_item in reversed(self.history):
+            if found_code_feedback:
+                if isinstance(history_item, AgentMessage):
+                    agent_message = history_item
+                    code = agent_message.code
+                    print('CODE', code)
+                    break
+
+            else:
+                if isinstance(history_item, CodeExecutionFeedback):
+                    output = history_item.output
+                    result = history_item.result
+
+                    print("OUTPUT", output)
+                    print("Result", result)
+                    found_code_feedback = True
+        if code:
+            client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
+            
+            system_prompt = ChatMessage(content= "You are a CAD agent. Your goal is to update the parameters in the given Cadquery python code based on the user's description.\n"
+                                        "Only update the variable values that exist in the code. \n"
+                                        "Your response should contain your thoughts and a specific description of what you're modifying then the code inside the code braces, like this:\n"
+                                        f"```\n code ...\n ```"
+                                        "Do not include any programming language reference to the code string",
+                                        role="system"
+                                      )
+            user_prompt = ChatMessage(content= "In the following code update the parameters that are under comment # Parameters. \n"
+                                        "Parameters to update :\n"
+                                        f"{json.dumps(new_params)} \n"
+
+                                        "Code: \n"
+                                        f"{code}",
+                                        role="user"
+                                      )
+
+            chat_response = client.chat(
+                    model="mistral-large-latest",
+                    messages=[system_prompt, user_prompt]
+                )
+            
+            message = chat_response.choices[0].message.content
+            agent_message = AgentMessage(message).from_message(message=message)
+            agent_message.run_code(self.executor)
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+
+        
+
+
