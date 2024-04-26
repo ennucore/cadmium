@@ -1,3 +1,74 @@
+CHEATSHEET = """
+# CadQuery Cheatsheet
+
+## 3D Construction
+- box(length, width, height)
+- sphere(radius)
+- cylinder(height, radius)
+- text(txt, fontsize, distance)
+- extrude(until)
+- revolve(angleDegrees)
+- loft(ruled)
+- sweep(path, isFrenet, transitionMode)
+- cutBlind(until)
+- cutThruAll()
+- hole(diameter, depth)
+- shell(thickness)
+- fillet(radius)
+- chamfer(length)
+- union(shape)
+- cut(shape)
+- intersect(shape)
+
+## 2D Construction
+- rect(xLen, yLen)
+- circle(radius)
+- ellipse(x_radius, y_radius)
+- center(x, y)
+- moveTo(x, y)
+- move(xDist, yDist)
+- lineTo(x, y)
+- line(xDist, yDist)
+- polarLine(distance, angle)
+- vLine(distance)
+- hLine(distance)
+- polyline(listOfXYTuple)
+
+## Sketching
+- rect(w, h)
+- circle(r)
+- ellipse(a1, a2)
+- trapezoid(w, h, a1)
+- regularPolygon(r, n)
+- polygon(pts)
+- fillet(d)
+- chamfer(d)
+- finalize()
+
+## Export
+- shape.val().exportStl(path)
+
+## Selector String Modifiers
+- | (Parallel to)
+- # (Perpendicular to)
+- +/- (Pos/Neg direction)
+- \> (Max)
+- < (Min)
+- % (Curve/surface type)
+
+## Selector Methods
+- faces(selector)
+- edges(selector)
+- vertices(selector)
+- solids(selector)
+- shells(selector)
+
+## Workplane Positioning
+- translate(Vector(x, y, z))
+- rotateAboutCenter(Vector(x, y, z), angleDegrees)
+- rotate(Vector(x, y, z), Vector(x, 
+"""
+
 EXAMPLES = """
 # Lego_Brick.py
 
