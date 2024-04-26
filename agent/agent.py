@@ -29,6 +29,7 @@ class Message(ABC):
     def to_rich_dict(self) -> dict:
         return {"type": self.__class__.__name__, **self.__dict__}
 
+    @classmethod
     def from_rich_dict(cls, d: dict):
         if d["type"] == "AgentMessage":
             return AgentMessage(
@@ -36,7 +37,6 @@ class Message(ABC):
             )
         elif d["type"] == "CodeExecutionFeedback":
             return CodeExecutionFeedback(
-                content=d["content"],
                 output=d["output"],
                 finished_successfully=d["finished_successfully"],
                 result=d["result"],
@@ -195,7 +195,7 @@ class Agent:
         # create copies of self and run them in parallel
         copies = [self.clone() for _ in range(times)]
         with ThreadPool(times) as pool:
-            results = pool.map(lambda agent: (agent[1].run_agent(streaming_callback=lambda x: streaming_function(x, agent[0])), agent), list(enumerate(copies)))
+            results = pool.map(lambda agent: (agent[1].run_agent(streaming_callback=lambda x: streaming_function(x, agent[0])), agent[1]), list(enumerate(copies)))
         agents = [result[1] for result in results]
         return agents, [result[0] for result in results]
 
@@ -205,6 +205,7 @@ class Agent:
             "history": [msg.to_rich_dict() for msg in self.history],
         }
 
+    @classmethod
     def from_dict(cls, d: dict) -> Agent:
         self = cls()
         self.model = d["model"]
