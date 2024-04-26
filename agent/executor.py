@@ -109,6 +109,7 @@ class CadqueryExecutor:
 
                 return output, result, True
             else:
+                os.rmdir(self.base_dir)
                 return output, None, False
         except Exception as e:
             print("===================================================")
