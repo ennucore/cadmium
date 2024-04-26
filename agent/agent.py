@@ -141,14 +141,14 @@ class Agent:
             client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         else:
             client = openai.OpenAI(
-                # api_key=os.getenv("OPENAI_API_KEY"),
-                api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1", 
+                api_key=os.getenv("OPENAI_API_KEY"),
+                # api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1", 
                 timeout=100
             )
 
         response = client.chat.completions.create(
-            model=self.model,
-            # model="gpt-4-turbo-2024-04-09",
+            # model=self.model,
+            model="gpt-4-turbo-2024-04-09",
             messages=message_history,
             temperature=0.4,
         ).choices[0].message.content
@@ -209,7 +209,7 @@ class Agent:
         self.history = [Message.from_rich_dict(msg) for msg in d["history"]]
         return self
 
-    def change_params(self, new_params: dict) -> str:
+    def change_params(self, new_params: dict):
         found_code_feedback = False
 
         for history_item in reversed(self.history):
@@ -254,7 +254,18 @@ class Agent:
             
             message = chat_response.choices[0].message.content
             agent_message = AgentMessage(message).from_message(message=message)
-            agent_message.run_code(self.executor)
+            codeExecutionFeedback = agent_message.run_code(self.executor)
+
+            self.history.append(agent_message)
+            self.history.append(codeExecutionFeedback)
+
+
+
+            
+
+
+
+
 
 
         

@@ -9,6 +9,9 @@ import random
 import os
 import json
 
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
+from cadmium.agent.prompts import example_params_prompt 
 
 preamble = """
 import cadquery as cq
@@ -53,33 +56,41 @@ def random_dir():
     return d
 
 
-def get_params(script_path):
-
-    parameters = {}
+def get_params(script_path) -> dict:
 
     with open(script_path, "r") as file:
-        lines = file.readlines()
-        for i in range(len(lines)):
-            if lines[i].startswith("# Parameters"):
-                for j in range(i + 1, len(lines)):
-                    if lines[j].strip() == "":
-                        return parameters
+        code = file.read()
 
-                    line = lines[j].strip().split("=")
-                    if len(line) == 2:
-                        var_name = line[0].strip()
+    client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
+    
+    system_prompt = ChatMessage(content= "You are a CAD agent. Your goal is to extract the parameters in the given Cadquery python code and return them as json.\n"
+                                    "The parameters can be generally found under a comment # Parameters or something similar. \n"
+                                    "Your response should contain your thoughts and a specific description of what you're extracting and then the json inside the code braces, like this:\n"
+                                    f"```{example_params_prompt}```"
+                                    "Do not include any programming language reference to the code string",
+                                    role="system"
+                                    )
+    user_prompt = ChatMessage(content= "Extract parameters from the following \n"
+                                    "Code :\n"
+                                    f"{code}",
+                                    role="user"
+                                    )
+    chat_response = client.chat(
+                    model="mistral-large-latest",
+                    messages=[system_prompt, user_prompt]
+                )
+            
+    message = chat_response.choices[0].message.content
 
-                        rest_line = line[1].strip().split("#")
+    thoughts=message.split("\n```")[0],
 
-                        var_value = rest_line[0].strip()
+    params = message.split("\n```", 1)[1].split("\n", 1)[1].strip().split("```")[0] if "\n```" in message else ""
+    params_json = json.loads(params) 
 
-                        if len(rest_line) > 1:
-                            var_unit = rest_line[1].strip()
-                        else:
-                            var_unit = None
+    print("PARAMS", params)
+    print("PARAMS JSON", params_json)
 
-                        parameters[var_name] = {"value": var_value, "unit": var_unit}
-    return parameters
+    return params_json 
 
 
 def ensure_dir_exists(dir):
