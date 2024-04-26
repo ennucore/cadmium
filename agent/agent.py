@@ -255,7 +255,7 @@ class Agent:
                                       )
 
             chat_response = client.chat(
-                    model="mistral-large-latest",
+                    model="mistral-small-latest",
                     messages=[system_prompt, user_prompt]
                 )
             
