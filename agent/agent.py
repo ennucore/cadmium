@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from cadmium.agent.executor import code_example, CadqueryExecutor
 from cadmium.agent.recap_streamer import RecapStreamer
-from cadmium.agent.prompts import examples_prompt, fixing_advice
+from cadmium.agent.prompts import examples_prompt, fixing_advice, advice
 
 from dataclasses import dataclass, field
 import rich
@@ -117,9 +117,10 @@ class Agent:
             UserMessage(message=examples_prompt, role="system"),
             UserMessage(message="You are a CAD agent called Cadmium. Your goal is to create a CAD model based on the user's description by writing Python code based on Cadquery.\n"
                         "When writing the python code, output the STL to a file in the current directory, then store the filename in the `result` variable.\n"
-                        "Before writing the code, first write a numbered list of all the small parts you will have in your model, their position relative to all the other elements, sizes, and direction.\n"
+                        "Before writing the code, first write a numbered list of all the small parts you will have in your model, their position relative to all the other elements, shapes, sizes, and direction. Write how you're going to contruct them.\n"
                         "Your response should contain your thoughts and a specific description of what you're going to do and what the model will be on a geometric level, then the code inside the code braces, like this:\n"
-                        f"```\n{code_example}\n```\n\nNote that you should always have the code and you cannot ask follow-ups", role="system"), 
+                        f"```\n{code_example}\n```\n\nNote that you should always have the code and you cannot ask follow-ups", role="user"), 
+            UserMessage(message=advice, role="system"),
             UserMessage(message=f"Create the following model:\n{prompt}")]
     
     @classmethod

@@ -38,7 +38,7 @@ class RecapStreamer:
         self.last_length = 0
 
     def stream(self, current_streamed_chunk: str):
-        threshold = 350
+        threshold = 450
         if len(current_streamed_chunk.replace(self.prev_summarize_delta, '')) > threshold and (len(current_streamed_chunk) - self.last_length > threshold or len(current_streamed_chunk) < self.last_length):
             self.prev_summarize_delta = current_streamed_chunk
             self.last_length = len(current_streamed_chunk)
