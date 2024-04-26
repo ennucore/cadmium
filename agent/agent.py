@@ -141,17 +141,24 @@ class Agent:
             client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         else:
             client = openai.OpenAI(
-                api_key=os.getenv("OPENAI_API_KEY"),
-                # api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1", 
-                timeout=100
+                api_key=os.getenv("OPENROUTER_API_KEY"),
+                base_url="https://openrouter.ai/api/v1",
+                timeout=100,
             )
 
-        response = client.chat.completions.create(
-            # model=self.model,
-            model="gpt-4-turbo-2024-04-09",
-            messages=message_history,
-            temperature=0.4,
-        ).choices[0].message.content
+        stream = (
+            client.chat.completions.create(
+                model=self.model,
+                messages=message_history,
+                temperature=0.4,
+                stream=True
+            )
+        )
+        response = ''
+        for chunk in stream:
+            response += chunk.choices[0].delta.content or ''
+            if callback_function:
+                callback_function(response)
         print(response)
         return AgentMessage.from_message(response)
 
