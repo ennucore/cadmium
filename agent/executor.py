@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 from typing import Any
 from dataclasses import dataclass, field
+import traceback
 import random
 import os
 import json
@@ -116,9 +117,9 @@ class CadqueryExecutor:
 
                 return output, result, True
             else:
-                os.rmdir(self.base_dir)
                 return output, None, False
         except Exception as e:
             print("===================================================")
             print(e)
+            print(traceback.format_exc())
             return str(e), None, False
