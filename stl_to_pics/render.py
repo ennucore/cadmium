@@ -8,6 +8,7 @@ def render(
     colors: list[tuple[float, float, float]],
     output_path: str,
     prefix: Optional[str] = None,
+    short_positions: bool = False,
 ):
     # Create a rendering window and renderer
     ren = vtk.vtkRenderer()
@@ -37,6 +38,13 @@ def render(
         ((0, 0, 1), (camera_dist_to_origin, 0, 0), "right"),
         ((0, 0, 1), (-camera_dist_to_origin, 0, 0), "left"),
     ]
+    if short_positions:
+        positions = [
+            ((1, 0, 0), (0.1 * camera_dist_to_origin, 0.1 * camera_dist_to_origin, camera_dist_to_origin), "top"),
+            ((1, 0, 0), (0.1 * camera_dist_to_origin, 0.1 * camera_dist_to_origin, -camera_dist_to_origin), "bottom"),
+            ((0, 0, 1), (0.15 * camera_dist_to_origin, camera_dist_to_origin, 0), "front"),
+        ((0, 0, 1), (-camera_dist_to_origin, 0, 0), "left"),
+        ]
 
     camera.Zoom(1.1)
 
