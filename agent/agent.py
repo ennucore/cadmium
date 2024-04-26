@@ -1,5 +1,4 @@
 from __future__ import annotations
-from cadmium.llms.ask import LLMModel, LLMProvider, ask_llm
 
 from cadmium.agent.executor import code_example, CadqueryExecutor
 from cadmium.agent.prompts import examples_prompt, fixing_advice
