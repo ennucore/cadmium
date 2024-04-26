@@ -47,7 +47,8 @@ result = spiral_sweep.stl
 
 def random_dir():
     d = "cadmium/scripts/models/" + str(random.randint(0, 1000000)) + "/"
-    os.mkdir(d)
+    os.makedirs(d)
+    print('created', d)
     return d
 
 
@@ -80,6 +81,11 @@ def get_params(script_path):
     return parameters
 
 
+def ensure_dir_exists(dir):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+
 @dataclass
 class CadqueryExecutor:
     base_dir: str = field(default_factory=random_dir)
@@ -89,6 +95,7 @@ class CadqueryExecutor:
             postfix = '\nprint("<RESULT>" + str(result) + "</RESULT>")\n'
             f.write(preamble + script + postfix)
             script_path = f.name
+        ensure_dir_exists(self.base_dir)
         try:
             process = subprocess.Popen(
                 ["python", script_path],
