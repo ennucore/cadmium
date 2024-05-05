@@ -1,0 +1,16 @@
+python-dotenv
+pyjwt
+python-dotenv
+openai
+pyyaml
+groq
+mistralai
+vtk
+cadquery
+numpy-stl
+matplotlib
+typer
+mistralai
+numpy-stl
+joblib
+git+https://github.com/meadiode/cq_gears.git@main

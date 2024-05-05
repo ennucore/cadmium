@@ -11,6 +11,7 @@ use_mistral = False
 
 
 def get_new_summary(existing_summaries: list[str], current_streamed_chunk: str):
+    return ''
     prompt = (f'You need to generate status updates to the user based on the work of Cadmium, a 3D agent. '
              f"Example updates that you could generate:\n"
              f"  - STATUS UPDATE: 🔍 Cadmium is analyzing your requirements\n"
