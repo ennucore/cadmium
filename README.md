@@ -9,12 +9,12 @@ _CAD models at the speed of thought (or, you know, GPT-4)_
 
 [Announcement tweet and demo](https://twitter.com/ennucore/status/1783946912351027579)
 
-<a href="https://twitter.com/ennucore/status/1783946912351027579"><img src="images/cat.png" width="300"></img></a>
+<a href="https://twitter.com/ennucore/status/1787128640305565713"><img src="images/cat.png" width="300"></img></a>
 
 ## Features and demo
 
 **In this open source agent:**
-[![](./images/cli_demo.png)](https://twitter.com/ennucore/status/1783946912351027579)
+[![](./images/cli_demo.png)](https://twitter.com/ennucore/status/1787128640305565713)
 - Generate the model based on a prompt (see how it works below)
 - Incrementally improve the model based on feedback
 - The agent can see the model and improve it
