@@ -1,0 +1,4 @@
+renders/
+models/
+__pycache__/
+.env

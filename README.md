@@ -41,6 +41,7 @@ $ git clone git@github.com:ennucore/cadmium.git
 $ cd cadmium
 $ conda env create -f environment.yml -n cadmium
 $ conda activate cadmium
+$ pip install -r requirements.txt
 $ cp .env.example .env
 ```
 
