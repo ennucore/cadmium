@@ -1,0 +1,26 @@
+{
+  "table_length": {
+    "value": "1200.0",
+    "unit": "mm"
+  },
+  "table_width": {
+    "value": "800.0",
+    "unit": "mm"
+  },
+  "table_thickness": {
+    "value": "30.0",
+    "unit": "mm"
+  },
+  "leg_height": {
+    "value": "750.0",
+    "unit": "mm"
+  },
+  "leg_width": {
+    "value": "50.0",
+    "unit": "mm"
+  },
+  "leg_depth": {
+    "value": "50.0",
+    "unit": "mm"
+  }
+}

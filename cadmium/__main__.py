@@ -1,7 +1,7 @@
 import typer
 import rich
 
-from cadmium.agent.agent import Agent, UserMessage
+from agent.agent import Agent, UserMessage
 
 
 if __name__ == "__main__":

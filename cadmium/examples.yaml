@@ -1,0 +1,443 @@
+- '#': '1'
+  Code: import cadquery as cq\n\n# parameters\nlength =4\nheight = 3\nthickness =
+    0.5\nfillet_radius = 0.5\n\n# functions\nresult = cq.Workplane("XY" ).box(length,
+    height, thickness).edges("|Z").fillet(fillet_radius)
+  Name of Part: Simple Rectangular Plate
+  label: A rectangular plate with length of 4 mm, height of 3 mm and a thickness of
+    0.5 mm\nThe edges of the plate are filleted with a fillet radius of 0.5 mm
+- '#': '2'
+  Code: import cadquery as cq\n\n# parameters\nlength = 80.0\nheight = 60.0\nthickness
+    = 10.0\ncenter_hole_dia = 22.0\n\n# functions\nresult = (\n    cq.Workplane("XY")\n    .box(length,
+    height, thickness)\n    .faces(">Z")\n    .workplane()\n    .hole(center_hole_dia)\n)
+  Name of Part: Plate with Hole
+  label: A rectangular plate with length of 80 units, height of 60 mm and a thickness
+    of 10 mm\nThe plate has a hole in the geometric center. The hole has a diameter
+    of 22 mm
+- '#': '3'
+  Code: import cadquery as cq\n\n# parameters\ndiameter = 3\nlength = 0.5\nheight
+    = 0.75\nthickness = 0.5\n\n\n# functions\nresult = cq.Workplane("front").circle(diameter).rect(length,
+    height).extrude(thickness)\n
+  Name of Part: An extruded prismatic solid
+  label: 'A circular plate with a diameter of 3 mm and a thickness of 0.5 mm\nIn the
+    geometric center of the plate a rectangular hole is made with a length of 0.5
+    mm and a height of 0.75 mm '
+- '#': '4'
+  Code: import cadquery as cq\n\n# parameters\nlength = 2\nheight = 1\nthickness =
+    0.25\npoint_1 = (length, height)\npoint_2 = (1, 1.5)\npoint_3 = (0, 1)\n\n\n#
+    functions\nresult = (\n    cq.Workplane("front")\n    .lineTo(length, 0)\n    .lineTo(length,
+    height)\n    .threePointArc((point_2), (point_3))\n    .close()\n    .extrude(thickness)\n)
+  Name of Part: Building Profiles using lines and arcs
+  label: A rectangualr plate that has the length of 2 mm, a height of 1 mm and thickness
+    of 0.25 mm\nOne of the sides of the plate is not straight rather an arc going
+    throught three points called point_1, point_2, and point_3
+- '#': '5'
+  Code: 'import cadquery as cq\n\n# parameters\ndiameter = 3\ndiameter_2 = 0.25\ncenter_2_x
+    = 1.5\ncenter_2_y = 0.0\ncenter_3_x = -1.5\ncenter_3_y = 1.5\nlength = 0.5\nheight
+    = 0.5\nthickness = 0.25\n\n\n# functions\nresult = cq.Workplane("front").circle(diameter)  \n\n#
+    current point is the center of the circle, at (0, 0)\nresult = result.center(center_2_x,
+    center_2_y).rect(length, height)  # new work center is (1.5, 0.0)\n\nresult =
+    result.center(center_3_x, center_3_y).circle(diameter_2)  # new work center is
+    (0, 1.5).\n# The new center is specified relative to the previous center, not
+    global coordinates!\n\nresult = result.extrude(thickness)'
+  Name of Part: Moving The Current working point
+  label: A circular plate with a diameter of 3 mm and a thickness of 0.25 mm\nA new
+    center was defined that is at the coordinates (center_2_x, center_2_y) relative
+    to the initial center\nAt the new center a rectangular hole was made with length
+    of 0.5 mm and height of 0.5 mm \nA new center was defined that is at the coordinates
+    (center_3_x, center_3_y) relative to the second center\nAt the new center a circular
+    hole was made with diameter of 0.25 mm
+- '#': '6'
+  Code: 'import cadquery as cq\n\n# parameters\ndiameter = 2\npoint_1 = (1.5, 0)\npoint_2
+    = (0, 1.5)\npoint_3 = (-1.5, 0)\npoint_4 = (0, -1.5)\ndiameter_2 = 0.25\nthickness
+    = 0.125\n\n\n# functions\nr = cq.Workplane("front").circle(diameter)  # make base\nr
+    = r.pushPoints(\n    [point_1, point_2, point_3, point_4]\n)  # now four points
+    are on the stack\nr = r.circle(diameter_2)  # circle will operate on all four
+    points\nresult = r.extrude(thickness)  # make prism'
+  Name of Part: Using Point Lists
+  label: 'A circular plate with diameter 2mm and thickness 0.125mm\nAt four locations
+    with coordinates point_1, point_2, point_3, and point_4 four circular holes were
+    made with diameter_2 = 0.25 mm '
+- '#': '7'
+  Code: import cadquery as cq\n\n# parameters\nlength = 3\nheight = 4 \nthickness
+    = 0.25\npoint_1 = (0, 0.75)\npoint_2 = (0, -0.75)\npoint_3 = (-1.5, 0)\npoint_4
+    = (0, -1.5)\nnumber_of_sides = 6\nlength_of_side = 1\n\n\n# functions\nresult
+    = (\n    cq.Workplane("front")\n    .box(3.0, 4.0, 0.25)\n    .pushPoints([point_1,
+    point_2])\n    .polygon(number_of_sides, length_of_side)\n    .cutThruAll()\n)
+  Name of Part: Polygons
+  label: A rectangular plate with length of 3mm, height of 4mm, and thickness of 0.25mm\nAt
+    two new positions located at coordinates point_1 and point_2 two polygon holes
+    are made\nEach polygon has number_of_sides as the side number and length_of_side
+    as the length of each side of the polygon
+- '#': '8'
+  Code: import cadquery as cq\n\n# parameters\n(L, H, W, t) = (100.0, 20.0, 20.0,
+    1.0)\n\n# functions\npts = [\n    (0, H / 2.0),\n    (W / 2.0, H / 2.0),\n    (W
+    / 2.0, (H / 2.0 - t)),\n    (t / 2.0, (H / 2.0 - t)),\n    (t / 2.0, (t - H /
+    2.0)),\n    (W / 2.0, (t - H / 2.0)),\n    (W / 2.0, H / -2.0),\n    (0, H / -2.0),\n]\nresult
+    = cq.Workplane("front").polyline(pts).mirrorY().extrude(L)
+  Name of Part: Polylines
+  label: An I beam with length L 100mm, height H 20mm, width W20mm and thickness t1mm
+- '#': '9'
+  Code: import cadquery as cq\n\n# parameters\nsPnts = [\n    (2.75, 1.5),\n    (2.5,
+    1.75),\n    (2.0, 1.5),\n    (1.5, 1.0),\n    (1.0, 1.25),\n    (0.5, 1.0),\n    (0,
+    1.0),\n]\nlength = 3\nheight = 1\nthickness = 0.5\n\n# functions\ns = cq.Workplane("XY")\n\nr
+    = s.lineTo(length, 0).lineTo(length, height).spline(sPnts, includeCurrent=True).close()\nresult
+    = r.extrude(thickness)
+  Name of Part: Defining an Edge with a Spline
+  label: A rectangular plate with length 3 mm and height 1mm\nOne side of the plate
+    is not straight rather a polyline defined by the points saved in sPnts
+- '#': '10'
+  Code: 'import cadquery as cq\n\n# parameters\nthickness = 0.25\nlength_1 = 0.5\nlength_2
+    = -0.25\nlength_3 = -0.25\nlength_4 = 0.0\n\n# functions\nr = cq.Workplane("front").hLine(1.0)  #
+    1.0 is the distance, not coordinate\nr = (\n    r.vLine(length_1).hLine(length_2).vLine(length_3).hLineTo(length_4)\n)  #
+    hLineTo allows using xCoordinate not distance\nresult = r.mirrorY().extrude(thickness)  #
+    mirror the geometry and extrude'
+  Name of Part: Mirroring Symmetric Geometry
+  label: 'A U shaped plate with thickness 0.25mm\nThe sides of the plate are designed
+    by following the lengths of vertical and horizontal lines with length length_1,
+    length_2, length_3, length_4\nThe lines are vertical and horizontal with respect
+    to the main coordinate system '
+- '#': '11'
+  Code: result0 = (\n    cadquery.Workplane("XY")\n    .moveTo(10, 0)\n    .lineTo(5,
+    0)\n    .threePointArc((3.9393, 0.4393), (3.5, 1.5))\n    .threePointArc((3.0607,
+    2.5607), (2, 3))\n    .lineTo(1.5, 3)\n    .threePointArc((0.4393, 3.4393), (0,
+    4.5))\n    .lineTo(0, 13.5)\n    .threePointArc((0.4393, 14.5607), (1.5, 15))\n    .lineTo(28,
+    15)\n    .lineTo(28, 13.5)\n    .lineTo(24, 13.5)\n    .lineTo(24, 11.5)\n    .lineTo(27,
+    11.5)\n    .lineTo(27, 10)\n    .lineTo(22, 10)\n    .lineTo(22, 13.2)\n    .lineTo(14.5,
+    13.2)\n    .lineTo(14.5, 10)\n    .lineTo(12.5, 10)\n    .lineTo(12.5, 13.2)\n    .lineTo(5.5,
+    13.2)\n    .lineTo(5.5, 2)\n    .threePointArc((5.793, 1.293), (6.5, 1))\n    .lineTo(10,
+    1)\n    .close()\n)\nresult = result0.extrude(100)\n\nresult = result.rotate((0,
+    0, 0), (1, 0, 0), 90)\n\nresult = result.translate(result.val().BoundingBox().center.multiply(-1))\n\nmirXY_neg
+    = result.mirror(mirrorPlane="XY", basePointVector=(0, 0, -30))\nmirXY_pos = result.mirror(mirrorPlane="XY",
+    basePointVector=(0, 0, 30))\nmirZY_neg = result.mirror(mirrorPlane="ZY", basePointVector=(-30,
+    0, 0))\nmirZY_pos = result.mirror(mirrorPlane="ZY", basePointVector=(30, 0, 0))\n\nresult
+    = result.union(mirXY_neg).union(mirXY_pos).union(mirZY_neg).union(mirZY_pos)
+  Name of Part: Mirroring 3D Objects
+  label: A 3D object that is defined by a set of points and line \nThe 3D obejct is
+    then mirrored
+- '#': '12'
+  Code: import cadquery as cq\n\n# parameters\nthickness = 1\n\n# functions\nresult
+    = cq.Workplane("XY").line(0, 1).line(1, 0).line(0, -0.5).close().extrude(thickness)\n\nresult
+    = result.mirror(result.faces(">X"), union=True)
+  Name of Part: Mirroring From Faces
+  label: An object defined by shifts in lines with thickness 1mm\nEvery new point
+    corresponds to a vector translation\nThe object is then mirrored along the X axis\n
+- '#': '13'
+  Code: 'import cadquery as cq\n\n# parameters\nlength = 2\nheight = 3\nthickness
+    = 0.5\ndiameter = 0.5\n\n# functions\nresult = cq.Workplane("front").box(length,
+    height, thickness)  # make a basic prism\nresult = (\n    result.faces(">Z").workplane().hole(diameter)\n)  #
+    find the top-most face and make a hole'
+  Name of Part: Creating Workplanes on Faces
+  label: A rectangular plate length 2mm, height 3mm and thickness of 0.5mm\nThe top
+    most face in the z direction was chosen and a circular hole with diameter 0.5mm
+    was made
+- '#': '14'
+  Code: 'import cadquery as cq\n\n# parameters\nlength = 3\nheight = 2\nthickness
+    = 0.5\ndiameter = 1\n\n# functions\nresult = cq.Workplane("front").box(length,
+    height, thickness)  # make a basic prism\nresult = (\n    result.faces(">Z").vertices("<XY").workplane(centerOption="CenterOfMass")\n)  #
+    select the lower left vertex and make a workplane\nresult = result.circle(diameter).cutThruAll()  #
+    cut the corner out'
+  Name of Part: Locating a Workplane on a vertex
+  label: A rectangular plate with length 3mm, height 2mm and thickness of 0.5mm \nThe
+    face parallel to the XY plane was chosen and the intersection of the X-axis and
+    Y-axis was taken to determine the vertics\nAt the center of the mass of the object
+    a circle was extruded and then subtracted from the main object\nThe circle has
+    a diameter of 1mm
+- '#': '15'
+  Code: 'import cadquery as cq\n\n# parameters\nlength = 3\nheight = 2\nthickness
+    = 0.5\ndiameter = 1\noffset_value = 0.75\n\n# functions\nresult = cq.Workplane("front").box(length,
+    height, thickness)  # make a basic prism\nresult = result.faces("<X").workplane(\n    offset=offset_value\n)  #
+    workplane is offset from the object surface\nresult = result.circle(diamter).extrude(thickness)  #
+    disc'
+  Name of Part: Offset Workplanes
+  label: Two objects, one is a rectangular plate with length 3mm, height 2mm, and
+    thickness of 0.5mm\nAnother object is a circular plate with diameter 1mm\nThe
+    circular plate was designed in a plane that is perpendicular to the X-axis and
+    is offset with the offset_value 0.75mm
+- '#': '16'
+  Code: 'import cadquery as cq\n\n# parameters\ncenter_2_x = -5\ncenter_2_y =0\ncenter_2_z
+    = 0\nthickness = 10\ndiameter = 1\n\n\n# functions\nresult = (\n    cq.Workplane("front")\n    .circle(diameter)\n    .extrude(thickness)  #
+    make a cylinder\n    # We want to make a second cylinder perpendicular to the
+    first,\n    # but we have no face to base the workplane off\n    .copyWorkplane(\n        #
+    create a temporary object with the required workplane\n        cq.Workplane("right",
+    origin=(center_2_x, center_2_y, center_2_z))\n    )\n    .circle(diameter)\n    .extrude(thickness)\n)'
+  Name of Part: Copying Workplanes
+  label: Two cylinders with diameter 1mm and thickness/length 10mm\nThe two cylinders
+    are perpendicular to eachother at the center of each one of them\nThe new center
+    of the second cylinder is at (center_2_x, center_2_y, center_2_z) and is rotated
+    to be perpendicular to the first plane
+- '#': '17'
+  Code: import cadquery as cq\n\n# parameters\nlength =4\nheight = 5\nthickness =
+    0.25\nrotation_x = 60\nrotation_y = 0\nrotation_z = 0\noffset_x = 0\noffset_y
+    = -1.5\noffset_z = 1\ndiameter = 0.25 \n\n# functions\nresult = (\n    cq.Workplane("front")\n    .box(length,
+    height, thickness)\n    .faces(">Z")\n    .workplane()\n    .transformed(offset=cq.Vector(offset_x,
+    offset_y, offset_z), rotate=cq.Vector(rotation_x, rotation_y, rotation_z))\n    .rect(1.5,
+    1.5, forConstruction=True)\n    .vertices()\n    .hole(diameter)\n)
+  Name of Part: Rotated Workplanes
+  label: ' A rectaungular plate with length 4mm, height 5mm, and thickness of 0.25mm
+    \nOn the verticies of a rectangle that has a length of 1.5mm and width of 1.5mm
+    and a center coinciding with the main center of object fours circular holes are
+    extruded with a diameter of 0.25mm \nThe holes are extruded in a plane that is
+    rotated by vector (rotation_x, rotation_y, rotation_z) and offset of value (offset_x,
+    offset_y, offset_z)'
+- '#': '18'
+  Code: import cadquery as cq\n\n# parameters\nlength =2\nheight = 2\nthickness =
+    2\ndiameter = 0.25\n\n# functions\nresult = (\n    cq.Workplane("front")\n    .box(length,
+    height, thickness)\n    .faces(">Z")\n    .workplane()\n    .rect(1.5, 1.5, forConstruction=True)\n    .vertices()\n    .hole(diameter)\n)
+  Name of Part: Using construction Geometry
+  label: 'A block of length 2mm height 2mm and thickness of 2mm\nFour holes are subtracted
+    on the edges of a rectangle with length 1.5mm and width of 1.5mm '
+- '#': '19'
+  Code: import cadquery as cq\n\n# parameters\nlength =2\nheight = 2\nthickness =
+    2\ndiameter = 0.25\nfillet_factor = 0.1\n\n# functions\nresult = cq.Workplane("front").box(length,
+    height, thickness).shell(fillet_factor)
+  Name of Part: Shelling To Create Thin features
+  label: A box with length 2mm, height 2mm and thickness of 2mm\nThe edges of the
+    box are filleted with a factor of 0.1
+- '#': '20'
+  Code: import cadquery as cq\n\n# parameters\nlength =2\nheight = 2\nthickness =
+    2\ndiameter = 0.25\nwall_thickness = 0.1\n\n# functions\nresult = cq.Workplane("front").box(length,
+    height, thickness).faces("+Z").shell(wall_thickness)
+  Name of Part: Hollowed Box
+  label: A box with length 2mm, height 2mm and thickness of 2mm\nThe box top side
+    is opened and hollowed with a wall thickness of 0.1mm
+- '#': '21'
+  Code: import cadquery as cq\n\n# parameters\nlength =2\nheight = 2\nthickness =
+    2\ndiameter = 0.25\nshell_factor = 0.1\n\n# functions\nresult = cq.Workplane("front").box(length,
+    height, thickness).faces("+Z or -X or +X").shell(shell_factor)
+  Name of Part: U bent plate
+  label: A box with length 2mm, height 2mm and thickness of 2mm\nThe box top side
+    and the sides are opened and hollowed with a wall thickness of 0.1mm
+- '#': '22'
+  Code: import cadquery as cq\n\n# parameters\nlength =4\nheight = 4\nthickness =
+    0.25\ndiameter = 1.5\noffset_factor = 3\nlength_2 = 0.75\nheight_2 = 0.5\n\n#
+    functions\nresult = (\n    cq.Workplane("front")\n    .box(length, height, thickness)\n    .faces(">Z")\n    .circle(diameter)\n    .workplane(offset=offset_factor)\n    .rect(length_2,
+    height_2)\n    .loft(combine=True)\n)
+  Name of Part: Making Lofts
+  label: A rectangular plate \nA lofted body connected to the rectangular plate \nThe
+    loft starts from a circular shape on the latter plate and then connects to a rectangular
+    shape that is offset from the main plate
+- '#': '23'
+  Code: import cadquery as cq\nfrom cq_gears import SpurGear\n\n# parameters\nnumber_of_teeth
+    =  19\nmodule_type = 1\nwidth_gear = 5 \nbore_diameter = 5\n\n# Create a gear
+    object with the SpurGear class\nspur_gear = SpurGear(module= module_type, teeth_number=
+    number_of_teeth, width=width_gear, bore_d=bore_diameter)\n\n# Build this gear
+    using the gear function from cq.Workplane\nwp = cq.Workplane('XY').gear(spur_gear)\n
+  Name of Part: Spur Gear
+  label: 'A spur gear with 19 teeth width of 5mm and bore diameter of 5mm\nthe module
+    type is 1 meaning spur gear '
+- '#': '24'
+  Code: import cadquery as cq\nfrom cq_gears import SpurGear\nfrom jupyter_cadquery
+    import show, set_defaults\nfrom cq_gears import (RingGear, HerringboneRingGear,\n                      PlanetaryGearset,
+    HerringbonePlanetaryGearset)\n\n# parameters\nsun_number_of_teeth =  12\nplanet_number_of_teeth
+    =  18\nmodule_type = 1\nwidth_gear = 10\nrim_width = 3\nnumber_of_planets = 3\nbore_diameter
+    = 6\n\n\n# functions\nset_defaults(axes=False, axes0=True, grid=(True, True, True),\n             default_color='lightgrey',
+    tools=False)\n\ngearset = PlanetaryGearset(module= module_type,\n                           sun_teeth_number=sun_number_of_teeth,
+    planet_teeth_number= planet_number_of_teeth,\n                           width=width_gear,
+    rim_width= rim_width, n_planets= number_of_planets,\n                           bore_d=
+    bore_diameter)\n\nwp = cq.Workplane('XY').gear(gearset)\nshow(wp)
+  Name of Part: Planetary Gear
+  label: A planetary gear with the following parameters:\n\nsun_number_of_teeth =  12\nplanet_number_of_teeth
+    =  18\nmodule_type = 1\nwidth_gear = 10\nrim_width = 3\nnumber_of_planets = 3\nbore_diameter
+    = 6
+- '#': '25'
+  Code: import cadquery as cq\nfrom jupyter_cadquery import show, set_defaults\n\nset_defaults(axes=False,
+    axes0=True, grid=(True, False, False),\n             default_color='lightgrey',
+    tools=False)\n\nfrom cq_gears import BevelGear, BevelGearPair\n\nbevel_gear =
+    BevelGear(module=1.0, teeth_number=11,\n                       cone_angle=45.0,
+    face_width=3.0, bore_d=4.0)\n\nwp = cq.Workplane('XY').gear(bevel_gear)\nshow(wp)
+  Name of Part: Bevel Gear
+  label: A bevel Gear with number of teeth 11, cone angle 45 degrees, a face width
+    of 3mm and a bore diameter of 4mm
+- '#': '26'
+  Code: import cadquery as cq\nfrom jupyter_cadquery import show, set_defaults\nfrom
+    cq_gears import BevelGear, BevelGearPair\n\nset_defaults(axes=False, axes0=True,
+    grid=(True, False, False),\n             default_color='lightgrey', tools=False)\n\n\nbevel_gear
+    = BevelGear(module=1.0, teeth_number=19, cone_angle=45.0,\n                       face_width=7.0,
+    helix_angle=30.0, bore_d=6.0)\n\nwp = cq.Workplane('XY').gear(bevel_gear)\nshow(wp)
+  Name of Part: A Helical bevel gear
+  label: A Helical bevel gear with teeth number 19, cone angle 45 degrees, face width
+    7mm, helix angle 30 degrees and a bore diameter of 6mm
+- '#': '27'
+  Code: 'import cadquery as cq\nfrom jupyter_cadquery import show, set_defaults\nfrom
+    cq_gears import BevelGear, BevelGearPair\n\nset_defaults(axes=False, axes0=True,
+    grid=(True, False, False),\n             default_color=''lightgrey'', tools=False)\n\n\nbevel_gears
+    = BevelGearPair(module=1.0, gear_teeth=40, pinion_teeth=20,\n                            face_width=6.0,
+    helix_angle=42.0, axis_angle=90.0,\n                            bore_d=22.0, pinion_build_args={''bore_d'':
+    6.0})\n\nwp = cq.Workplane(''XY'').gear(bevel_gears)\nshow(wp)'
+  Name of Part: Helical Bevel Gear Pair
+  label: A pair of helical gears the second gear is perpendicular to the first one
+    as seen from the axis_angle\n
+- '#': '28'
+  Code: (L, w, t) = (20.0, 6.0, 3.0)\ns = cq.Workplane("XY")\n\n# Draw half the profile
+    of the bottle and extrude it\np = (\n    s.center(-L / 2.0, 0)\n    .vLine(w /
+    2.0)\n    .threePointArc((L / 2.0, w / 2.0 + t), (L, w / 2.0))\n    .vLine(-w
+    / 2.0)\n    .mirrorX()\n    .extrude(30.0, True)\n)\n\n# Make the neck\np = p.faces(">Z").workplane(centerOption="CenterOfMass").circle(3.0).extrude(2.0,
+    True)\n\n# Make a shell\nresult = p.faces(">Z").shell(0.3)
+  Name of Part: The Classic OCC Bottle
+  label: A bottle that is designed by mixing various parts together
+- '#': '29'
+  Code: '# parameter definitions\np_outerWidth = 100.0  # Outer width of box enclosure\np_outerLength
+    = 150.0  # Outer length of box enclosure\np_outerHeight = 50.0  # Outer height
+    of box enclosure\n\np_thickness = 3.0  # Thickness of the box walls\np_sideRadius
+    = 10.0  # Radius for the curves around the sides of the box\np_topAndBottomRadius
+    = (\n    2.0  # Radius for the curves on the top and bottom edges of the box\n)\n\np_screwpostInset
+    = 12.0  # How far in from the edges the screw posts should be place.\np_screwpostID
+    = 4.0  # Inner Diameter of the screw post holes, should be roughly screw diameter
+    not including threads\np_screwpostOD = 10.0  # Outer Diameter of the screw posts.\nDetermines
+    overall thickness of the posts\n\np_boreDiameter = 8.0  # Diameter of the counterbore
+    hole, if any\np_boreDepth = 1.0  # Depth of the counterbore hole, if\np_countersinkDiameter
+    = 0.0  # Outer diameter of countersink. Should roughly match the outer diameter
+    of the screw head\np_countersinkAngle = 90.0  # Countersink angle (complete angle
+    between opposite sides, not from center to one side)\np_flipLid = True  # Whether
+    to place the lid with the top facing down or not.\np_lipHeight = 1.0  # Height
+    of lip on the underside of the lid.\nSits inside the box body for a snug fit.\n\n#
+    outer shell\noshell = (\n    cq.Workplane("XY")\n    .rect(p_outerWidth, p_outerLength)\n    .extrude(p_outerHeight
+    + p_lipHeight)\n)\n\n# weird geometry happens if we make the fillets in the wrong
+    order\nif p_sideRadius > p_topAndBottomRadius:\n    oshell = oshell.edges("|Z").fillet(p_sideRadius)\n    oshell
+    = oshell.edges("#Z").fillet(p_topAndBottomRadius)\nelse:\n    oshell = oshell.edges("#Z").fillet(p_topAndBottomRadius)\n    oshell
+    = oshell.edges("|Z").fillet(p_sideRadius)\n\n# inner shell\nishell = (\n    oshell.faces("<Z")\n    .workplane(p_thickness,
+    True)\n    .rect((p_outerWidth - 2.0 * p_thickness), (p_outerLength - 2.0 * p_thickness))\n    .extrude(\n        (p_outerHeight
+    - 2.0 * p_thickness), False\n    )  # set combine false to produce just the new
+    boss\n)\nishell = ishell.edges("|Z").fillet(p_sideRadius - p_thickness)\n\n# make
+    the box outer box\nbox = oshell.cut(ishell)\n\n# make the screw posts\nPOSTWIDTH
+    = p_outerWidth - 2.0 * p_screwpostInset\nPOSTLENGTH = p_outerLength - 2.0 * p_screwpostInset\n\nbox
+    = (\n    box.faces(">Z")\n    .workplane(-p_thickness)\n    .rect(POSTWIDTH, POSTLENGTH,
+    forConstruction=True)\n    .vertices()\n    .circle(p_screwpostOD / 2.0)\n    .circle(p_screwpostID
+    / 2.0)\n    .extrude(-1.0 * (p_outerHeight + p_lipHeight - p_thickness), True)\n)\n\n#
+    split lid into top and bottom parts\n(lid, bottom) = (\n    box.faces(">Z")\n    .workplane(-p_thickness
+    - p_lipHeight)\n    .split(keepTop=True, keepBottom=True)\n    .all()\n)  # splits
+    into two solids\n\n# translate the lid, and subtract the bottom from it to produce
+    the lid inset\nlowerLid = lid.translate((0, 0, -p_lipHeight))\ncutlip = lowerLid.cut(bottom).translate(\n    (p_outerWidth
+    + p_thickness, 0, p_thickness - p_outerHeight + p_lipHeight)\n)\n\n# compute centers
+    for screw holes\ntopOfLidCenters = (\n    cutlip.faces(">Z")\n    .workplane(centerOption="CenterOfMass")\n    .rect(POSTWIDTH,
+    POSTLENGTH, forConstruction=True)\n    .vertices()\n)\n\n# add holes of the desired
+    type\nif p_boreDiameter > 0 and p_boreDepth > 0:\n    topOfLid = topOfLidCenters.cboreHole(\n        p_screwpostID,
+    p_boreDiameter, p_boreDepth, 2.0 * p_thickness\n    )\nelif p_countersinkDiameter
+    > 0 and p_countersinkAngle > 0:\n    topOfLid = topOfLidCenters.cskHole(\n        p_screwpostID,
+    p_countersinkDiameter, p_countersinkAngle, 2.0 * p_thickness\n    )\nelse:\n    topOfLid
+    = topOfLidCenters.hole(p_screwpostID, 2.0 * p_thickness)\n\n# flip lid upside
+    down if desired\nif p_flipLid:\n    topOfLid = topOfLid.rotateAboutCenter((1,
+    0, 0), 180)\n\n# return the combined result\nresult = topOfLid.union(bottom)'
+  Name of Part: A Parametric Enclosure
+  label: An enclosure that is a box with a lid\nThe lid can be screwed to the box\nThe
+    box contains cylinders that are hollow for the lid to be screwed into the box
+- '#': '30'
+  Code: '#####\n# Inputs\n######\nlbumps = 6  # number of bumps long\nwbumps = 2  #
+    number of bumps wide\nthin = True  # True for thin, False for thick\n\n#\n# Lego
+    Brick Constants-- these make a Lego brick a Lego :)\n#\npitch = 8.0\nclearance
+    = 0.1\nbumpDiam = 4.8\nbumpHeight = 1.8\nif thin:\n    height = 3.2\nelse:\n    height
+    = 9.6\n\nt = (pitch - (2 * clearance) - bumpDiam) / 2.0\npostDiam = pitch - t  #
+    works out to 6.5\ntotal_length = lbumps * pitch - 2.0 * clearance\ntotal_width
+    = wbumps * pitch - 2.0 * clearance\n\n# make the base\ns = cq.Workplane("XY").box(total_length,
+    total_width, height)\n\n# shell inwards not outwards\ns = s.faces("<Z").shell(-1.0
+    * t)\n\n# make the bumps on the top\ns = (\n    s.faces(">Z")\n    .workplane()\n    .rarray(pitch,
+    pitch, lbumps, wbumps, True)\n    .circle(bumpDiam / 2.0)\n    .extrude(bumpHeight)\n)\n\n#
+    add posts on the bottom. posts are different diameter depending on geometry\n#
+    solid studs for 1 bump, tubes for multiple, none for 1x1\ntmp = s.faces("<Z").workplane(invert=True)\n\nif
+    lbumps > 1 and wbumps > 1:\n    tmp = (\n        tmp.rarray(pitch, pitch, lbumps
+    - 1, wbumps - 1, center=True)\n        .circle(postDiam / 2.0)\n        .circle(bumpDiam
+    / 2.0)\n        .extrude(height - t)\n    )\nelif lbumps > 1:\n    tmp = (\n        tmp.rarray(pitch,
+    pitch, lbumps - 1, 1, center=True)\n        .circle(t)\n        .extrude(height
+    - t)\n    )\nelif wbumps > 1:\n    tmp = (\n        tmp.rarray(pitch, pitch, 1,
+    wbumps - 1, center=True)\n        .circle(t)\n        .extrude(height - t)\n    )\nelse:\n    tmp
+    = s'
+  Name of Part: Lego Brick
+  label: A Lego brick with 6 bumbs in one direction and 2 in the other
+- '#': '31'
+  Code: '# The dimensions of the model. These can be modified rather than changing
+    the\n# object''s code directly.\nwidth = 400\nheight = 500\nthickness = 2\n\n#
+    Create a plate with two polygons cut through it\nresult = cq.Workplane("front").box(width,
+    height, thickness)\n\nh_sep = 60\nfor idx in range(4):\n    result = (\n        result.workplane(offset=1,
+    centerOption="CenterOfBoundBox")\n        .center(157, 210 - idx * h_sep)\n        .moveTo(-23.5,
+    0)\n        .circle(1.6)\n        .moveTo(23.5, 0)\n        .circle(1.6)\n        .moveTo(-17.038896,
+    -5.7)\n        .threePointArc((-19.44306, -4.70416), (-20.438896, -2.3))\n        .lineTo(-21.25,
+    2.3)\n        .threePointArc((-20.25416, 4.70416), (-17.85, 5.7))\n        .lineTo(17.85,
+    5.7)\n        .threePointArc((20.25416, 4.70416), (21.25, 2.3))\n        .lineTo(20.438896,
+    -2.3)\n        .threePointArc((19.44306, -4.70416), (17.038896, -5.7))\n        .close()\n        .cutThruAll()\n    )\n\nfor
+    idx in range(4):\n    result = (\n        result.workplane(offset=1, centerOption="CenterOfBoundBox")\n        .center(157,
+    -30 - idx * h_sep)\n        .moveTo(-16.65, 0)\n        .circle(1.6)\n        .moveTo(16.65,
+    0)\n        .circle(1.6)\n        .moveTo(-10.1889, -5.7)\n        .threePointArc((-12.59306,
+    -4.70416), (-13.5889, -2.3))\n        .lineTo(-14.4, 2.3)\n        .threePointArc((-13.40416,
+    4.70416), (-11, 5.7))\n        .lineTo(11, 5.7)\n        .threePointArc((13.40416,
+    4.70416), (14.4, 2.3))\n        .lineTo(13.5889, -2.3)\n        .threePointArc((12.59306,
+    -4.70416), (10.1889, -5.7))\n        .close()\n        .cutThruAll()\n    )\n\nh_sep4DB9
+    = 30\nfor idx in range(8):\n    result = (\n        result.workplane(offset=1,
+    centerOption="CenterOfBoundBox")\n        .center(91, 225 - idx * h_sep4DB9)\n        .moveTo(-12.5,
+    0)\n        .circle(1.6)\n        .moveTo(12.5, 0)\n        .circle(1.6)\n        .moveTo(-6.038896,
+    -5.7)\n        .threePointArc((-8.44306, -4.70416), (-9.438896, -2.3))\n        .lineTo(-10.25,
+    2.3)\n        .threePointArc((-9.25416, 4.70416), (-6.85, 5.7))\n        .lineTo(6.85,
+    5.7)\n        .threePointArc((9.25416, 4.70416), (10.25, 2.3))\n        .lineTo(9.438896,
+    -2.3)\n        .threePointArc((8.44306, -4.70416), (6.038896, -5.7))\n        .close()\n        .cutThruAll()\n    )\n\nfor
+    idx in range(4):\n    result = (\n        result.workplane(offset=1, centerOption="CenterOfBoundBox")\n        .center(25,
+    210 - idx * h_sep)\n        .moveTo(-23.5, 0)\n        .circle(1.6)\n        .moveTo(23.5,
+    0)\n        .circle(1.6)\n        .moveTo(-17.038896, -5.7)\n        .threePointArc((-19.44306,
+    -4.70416), (-20.438896, -2.3))\n        .lineTo(-21.25, 2.3)\n        .threePointArc((-20.25416,
+    4.70416), (-17.85, 5.7))\n        .lineTo(17.85, 5.7)\n        .threePointArc((20.25416,
+    4.70416), (21.25, 2.3))\n        .lineTo(20.438896, -2.3)\n        .threePointArc((19.44306,
+    -4.70416), (17.038896, -5.7))\n        .close()\n        .cutThruAll()\n    )\n\nfor
+    idx in range(4):\n    result = (\n        result.workplane(offset=1, centerOption="CenterOfBoundBox")\n        .center(25,
+    -30 - idx * h_sep)\n        .moveTo(-16.65, 0)\n        .circle(1.6)\n        .moveTo(16.65,
+    0)\n        .circle(1.6)\n        .moveTo(-10.1889, -5.7)\n        .threePointArc((-12.59306,
+    -4.70416), (-13.5889, -2.3))\n        .lineTo(-14.4, 2.3)\n        .threePointArc((-13.40416,
+    4.70416), (-11, 5.7))\n        .lineTo(11, 5.7)\n        .threePointArc((13.40416,
+    4.70416), (14.4, 2.3))\n        .lineTo(13.5889, -2.3)\n        .threePointArc((12.59306,
+    -4.70416), (10.1889, -5.7))\n        .close()\n        .cutThruAll()\n    )\n\nfor
+    idx in range(8):\n    result = (\n        result.workplane(offset=1, centerOption="CenterOfBoundBox")\n        .center(-41,
+    225 - idx * h_sep4DB9)\n        .moveTo(-12.5, 0)\n        .circle(1.6)\n        .moveTo(12.5,
+    0)\n        .circle(1.6)\n        .moveTo(-6.038896, -5.7)\n        .threePointArc((-8.44306,
+    -4.70416), (-9.438896, -2.3))\n        .lineTo(-10.25, 2.3)\n        .threePointArc((-9.25416,
+    4.70416), (-6.85, 5.7))\n        .lineTo(6.85, 5.7)\n        .threePointArc((9.25416,
+    4.70416), (10.25, 2.3))\n        .lineTo(9.438896, -2.3)\n        .threePointArc((8.44306,
+    -4.70416), (6.038896, -5.7))\n        .close()\n        .cutThruAll()\n    )\n\nfor
+    idx in range(4):\n    result = (\n        result.workplane(offset=1, centerOption="CenterOfBoundBox")\n        .center(-107,
+    210 - idx * h_sep)\n        .moveTo(-23.5, 0)\n        .circle(1.6)\n        .moveTo(23.5,
+    0)\n        .circle(1.6)\n        .moveTo(-17.038896, -5.7)\n        .threePointArc((-19.44306,
+    -4.70416), (-20.438896, -2.3))\n        .lineTo(-21.25, 2.3)\n        .threePointArc((-20.25416,
+    4.70416), (-17.85, 5.7))\n        .lineTo(17.85, 5.7)\n        .threePointArc((20.25416,
+    4.70416), (21.25, 2.3))\n        .lineTo(20.438896, -2.3)\n        .threePointArc((19.44306,
+    -4.70416), (17.038896, -5.7))\n        .close()\n        .cutThruAll()\n    )\n\nfor
+    idx in range(4):\n    result = (\n        result.workplane(offset=1, centerOption="CenterOfBoundBox")\n        .center(-107,
+    -30 - idx * h_sep)\n        .circle(14)\n        .rect(24.7487, 24.7487, forConstruction=True)\n        .vertices()\n        .hole(3.2)\n        .cutThruAll()\n    )\n\nfor
+    idx in range(8):\n    result = (\n        result.workplane(offset=1, centerOption="CenterOfBoundBox")\n        .center(-173,
+    225 - idx * h_sep4DB9)\n        .moveTo(-12.5, 0)\n        .circle(1.6)\n        .moveTo(12.5,
+    0)\n        .circle(1.6)\n        .moveTo(-6.038896, -5.7)\n        .threePointArc((-8.44306,
+    -4.70416), (-9.438896, -2.3))\n        .lineTo(-10.25, 2.3)\n        .threePointArc((-9.25416,
+    4.70416), (-6.85, 5.7))\n        .lineTo(6.85, 5.7)\n        .threePointArc((9.25416,
+    4.70416), (10.25, 2.3))\n        .lineTo(9.438896, -2.3)\n        .threePointArc((8.44306,
+    -4.70416), (6.038896, -5.7))\n        .close()\n        .cutThruAll()\n    )\n\nfor
+    idx in range(4):\n    result = (\n        result.workplane(offset=1, centerOption="CenterOfBoundBox")\n        .center(-173,
+    -30 - idx * h_sep)\n        .moveTo(-2.9176, -5.3)\n        .threePointArc((-6.05,
+    0), (-2.9176, 5.3))\n        .lineTo(2.9176, 5.3)\n        .threePointArc((6.05,
+    0), (2.9176, -5.3))\n        .close()\n        .cutThruAll()\n    )'
+  Name of Part: Panel With Various Connector Holes
+  label: A plate with various electronic connectors\nThe plate is usually laser cut
+    or milled with the holes for the connectors\nThe holes are meant to hold connectors
+    in place\nSome connectors can be coming out or into electronic devices like batteries,
+    PCBs, Micro Controller and similar devices and elements
+- '#': '32'
+  Code: s = cq.Workplane("XY")\nsPnts = [\n    (2.75, 1.5),\n    (2.5, 1.75),\n    (2.0,
+    1.5),\n    (1.5, 1.0),\n    (1.0, 1.25),\n    (0.5, 1.0),\n    (0, 1.0),\n]\nr
+    = s.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(sPnts, includeCurrent=True).close()\nresult
+    = r.revolve(360)s = cq.Workplane("XY")\nsPnts = [\n    (2.75, 1.5),\n    (2.5,
+    1.75),\n    (2.0, 1.5),\n    (1.5, 1.0),\n    (1.0, 1.25),\n    (0.5, 1.0),\n    (0,
+    1.0),\n]\nr = s.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(sPnts, includeCurrent=True).close()\nresult
+    = r.revolve(360)
+  Name of Part: A wavy plate
+  label: The plate has a flat surface and is wavy on the top\nThe wavy structure is
+    made by defining a poly line
+- '#': '33'
+  Code: s = cq.Workplane("XY")\nsPnts = [\n    (2.75, 1.5),\n    (2.5, 1.75),\n    (2.0,
+    1.5),\n    (1.5, 1.0),\n    (1.0, 1.25),\n    (0.5, 1.0),\n    (0, 1.0),\n]\nr
+    = s.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(sPnts, includeCurrent=True).close()\nresult
+    = r.revolve(360, [10, 0, 0], [30, 0, 0])
+  Name of Part: 'A revolved Object '
+  label: A revolved object that can be seen as an artistic table \nThe sides are wavy
+    but the bottom and top are flat
+- '#': '34'
+  Code: s = cq.Workplane("XY")\nsPnts = [\n    (2.75, 1.5),\n    (2.5, 1.75),\n    (2.0,
+    1.5),\n    (1.5, 1.0),\n    (1.0, 1.25),\n    (0.5, 1.0),\n    (0, 1.0),\n]\nr
+    = s.lineTo(3.0, 0).lineTo(3.0, 1.0).spline(sPnts, includeCurrent=True).close()\nresult
+    = r.revolve(360, [10, 0, 0], [30, 0, 0]).faces("+X").shell(0.1)
+  Name of Part: An artistic wavy cup
+  label: A cup that has wavy sides defined by a polyline \nThe bottom is closed and
+    the top is open with a hollow body to function as a cup

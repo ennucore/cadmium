@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 mistral_client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
+use_mistral = False
 
 
 def get_new_summary(existing_summaries: list[str], current_streamed_chunk: str):

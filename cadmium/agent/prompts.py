@@ -1,10 +1,10 @@
 import yaml
 import json
 
-with open('examples.yaml') as f:
+with open('cadmium/examples.yaml') as f:
     examples = yaml.load(f, Loader=yaml.FullLoader)
 
-with open('example_params.json') as f:
+with open('cadmium/example_params.json') as f:
     example_params = json.load(f)
 
 selected_examples = [2, 4, 7, 8, 9, 15, 20, 21, 22, 23, 24, 19, 28, 32, 33, 34]

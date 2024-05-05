@@ -11,7 +11,7 @@ import json
 
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-from cadmium.agent.prompts import example_params_prompt 
+from agent.prompts import example_params_prompt 
 
 preamble = """
 import cadquery as cq

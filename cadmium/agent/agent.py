@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from cadmium.agent.executor import code_example, CadqueryExecutor
-from cadmium.agent.recap_streamer import RecapStreamer
-from cadmium.agent.prompts import examples_prompt, fixing_advice, advice
+from .executor import code_example, CadqueryExecutor
+from .recap_streamer import RecapStreamer
+from .prompts import examples_prompt, fixing_advice, advice
 
 from dataclasses import dataclass, field
 import rich
