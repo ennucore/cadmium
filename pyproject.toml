@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "cadmium"
+version = "0.1.0"
+description = ""
+authors = ["Lev <lc@lev.la>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-dotenv = "^1.0.1"
+openai = "^1.25.1"
+mistralai = "^0.1.8"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.24.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
