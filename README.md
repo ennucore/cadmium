@@ -8,7 +8,8 @@
 _CAD models at the speed of thought (or, you know, GPT-4)_
 
 [Announcement tweet and demo](https://twitter.com/ennucore/status/1783946912351027579)
-[![](./images/cat.png)](https://twitter.com/ennucore/status/1783946912351027579)
+
+<a href="https://twitter.com/ennucore/status/1783946912351027579"><img src="images/cat.png" width="300"></img></a>
 
 ## Features and demo
 
@@ -17,6 +18,7 @@ _CAD models at the speed of thought (or, you know, GPT-4)_
 - Generate the model based on a prompt (see how it works below)
 - Incrementally improve the model based on feedback
 - The agent can see the model and improve it
+- While the agent is working, you can see the updates from it in a user-friendly way (well it's a CLI but whatever)
 
 Implemented but not used in the CLI:
 - Extracting and changing parameters of the model (e.g., table width, height, etc.)
@@ -72,3 +74,7 @@ Model generation is done in the following way:
    - Render the STL from different viewpoints
    - Provide the images (and optionally the user's comments) to the agent
    - The agent will try to improve the model based on the feedback
+
+### Credits
+
+This project was created by Lev Chizhov, Osama Atwi, Anicet Nougaret, Kaarel Kaarelson, Nesrine Zarrouki on the LLM Hack by EntrepreneurFirst in Paris.
