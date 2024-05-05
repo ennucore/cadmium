@@ -90,8 +90,8 @@ class CodeExecutionFeedback(Message):
         err_msg = ""
         if not self.finished_successfully:
             err_msg = (
-                "The code execution failed. Please, take a deep breath, write the reasons while it failed, and write the code again with more attention to detail.\n"
-                + fixing_advice
+                    "The code execution failed. Please, take a deep breath, write the reasons while it failed, and write the code again with more attention to detail.\n"
+                    + fixing_advice
             )
         return f"{self.output}\n{err_msg}\n"
 
@@ -109,7 +109,7 @@ class UserMessage(Message):
 class Agent:
     # model: str = 'llama3-70b-8192'    # 'openai/gpt-4-turbo-2024-04-09'
     # model: str = 'meta-llama/llama-3-70b-instruct:nitro'
-    model: str = "openai/gpt-4-turbo-2024-04-09"
+    model: str = "openai/gpt-4-turbo-2024-04-09" if os.getenv("OPENROUTER_API_KEY") else "gpt-4-turbo-2024-04-09"
     history: list[UserMessage | AgentMessage | CodeExecutionFeedback] = field(
         default_factory=list
     )
@@ -118,14 +118,16 @@ class Agent:
     def get_first_messages(self, prompt: str) -> list[UserMessage]:
         return [
             UserMessage(message=examples_prompt, role="system"),
-            UserMessage(message="You are a CAD agent called Cadmium. Your goal is to create a CAD model based on the user's description by writing Python code based on Cadquery.\n"
+            UserMessage(
+                message="You are a CAD agent called Cadmium. Your goal is to create a CAD model based on the user's description by writing Python code based on Cadquery.\n"
                         "When writing the python code, output the STL to a file in the current directory, then store the filename in the `result` variable.\n"
                         "Before writing the code, first write a numbered list of all the small parts you will have in your model, their position relative to all the other elements, shapes, sizes, and direction. Write how you're going to contruct them.\n"
                         "Your response should contain your thoughts and a specific description of what you're going to do and what the model will be on a geometric level, then the code inside the code braces, like this:\n"
-                        f"```\n{code_example}\n```\n\nNote that you should always have the code and you cannot ask follow-ups", role="user"), 
+                        f"```\n{code_example}\n```\n\nNote that you should always have the code and you cannot ask follow-ups",
+                role="user"),
             UserMessage(message=advice, role="system"),
             UserMessage(message=f"Create the following model:\n{prompt}")]
-    
+
     @classmethod
     def initialize(cls, prompt: str, factory: AgentFactory | None = None) -> Agent:
         self = cls()
@@ -134,20 +136,29 @@ class Agent:
         self.history = self.get_first_messages(prompt)
         return self
 
-    def get_next_message(self, callback_function=None) -> AgentMessage:
-        message_history = [msg.to_dict() for msg in self.history]
-        # response = ask_llm(provider=LLMProvider.GROQ, model=LLMModel.GROQ_LLAMA3_70, query=message_history)
-        if "/" not in self.model:
+    @property
+    def client(self):
+        if "/" not in self.model and "llama" in self.model.lower():
             client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        elif "/" not in self.model and "gpt-" in self.model.lower():
+            client = openai.OpenAI(
+                api_key=os.getenv("OPENAI_API_KEY"),
+                timeout=100,
+            )
         else:
             client = openai.OpenAI(
                 api_key=os.getenv("OPENROUTER_API_KEY"),
                 base_url="https://openrouter.ai/api/v1",
                 timeout=100,
             )
+        return client
+
+    def get_next_message(self, callback_function=None) -> AgentMessage:
+        message_history = [msg.to_dict() for msg in self.history]
+        # response = ask_llm(provider=LLMProvider.GROQ, model=LLMModel.GROQ_LLAMA3_70, query=message_history)
 
         stream = (
-            client.chat.completions.create(
+            self.client.chat.completions.create(
                 model=self.model,
                 messages=message_history,
                 temperature=0.4,
@@ -164,14 +175,13 @@ class Agent:
 
     def add_user_message(self, message: str) -> None:
         self.history.append(UserMessage(message=message))
-    
+
     def get_latest_chatbot_message(self) -> str:
         try:
             latest_message = [msg for msg in self.history if msg.role == "assistant"][-1]
             return latest_message.content
         except IndexError:
             return ""
-        
 
     def run_step(self, streaming_callback=False) -> list[CodeExecutionFeedback | AgentMessage]:
         next_message = self.get_next_message(streaming_callback)
@@ -199,7 +209,9 @@ class Agent:
         # create copies of self and run them in parallel
         copies = [self.clone() for _ in range(times)]
         with ThreadPool(times) as pool:
-            results = pool.map(lambda agent: (agent[1].run_agent(streaming_callback=lambda x: streaming_function(x, agent[0])), agent[1]), list(enumerate(copies)))
+            results = pool.map(lambda agent: (
+                agent[1].run_agent(streaming_callback=lambda x: streaming_function(x, agent[0])), agent[1]),
+                               list(enumerate(copies)))
         agents = [result[1] for result in results]
         return agents, [result[0] for result in results]
 
@@ -236,61 +248,34 @@ class Agent:
                     print("Result", result)
                     found_code_feedback = True
         if code:
-            client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
-            
-            system_prompt = ChatMessage(content= "You are a CAD agent. Your goal is to update the parameters in the given Cadquery python code based on the user's description.\n"
-                                        "Only update the variable values that exist in the code. \n"
-                                        "Your response should contain your thoughts and a specific description of what you're modifying then the code inside the code braces, like this:\n"
-                                        f"```\n code ...\n ```"
-                                        "Do not include any programming language reference to the code string",
-                                        role="system"
-                                      )
-            user_prompt = ChatMessage(content= "In the following code update the parameters that are under comment # Parameters. \n"
-                                        "Parameters to update :\n"
-                                        f"{json.dumps(new_params)} \n"
 
-                                        "Code: \n"
-                                        f"{code}",
-                                        role="user"
-                                      )
+            system_prompt = (
+                "You are a CAD agent. Your goal is to update the parameters in the given Cadquery python code based on the user's description.\n"
+                "Only update the variable values that exist in the code. \n"
+                "Your response should contain your thoughts and a specific description of what you're modifying then the code inside the code braces, like this:\n"
+                f"```\n code ...\n ```"
+                "Do not include any programming language reference to the code string")
+            user_prompt = ("In the following code update the parameters that are under comment # Parameters. \n"
+                           "Parameters to update :\n"
+                           f"{json.dumps(new_params)} \n"
 
-            chat_response = client.chat(
+                           "Code: \n"
+                           f"{code}")
+
+            if os.getenv("MISTRAL_API_KEY"):
+                client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
+                chat_response = client.chat(
                     model="mistral-small-latest",
-                    messages=[system_prompt, user_prompt]
+                    messages=[ChatMessage(content=system_prompt, role="system"), ChatMessage(content=user_prompt, role="user")]
                 )
-            
+            else:
+                chat_response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[{"content": system_prompt, "role": "system"}, {"content": user_prompt, "role": "user"}]
+                )
             message = chat_response.choices[0].message.content
             agent_message = AgentMessage(message).from_message(message=message)
             codeExecutionFeedback = agent_message.run_code(self.executor)
 
             self.history.append(agent_message)
             self.history.append(codeExecutionFeedback)
-
-
-
-            
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-            
-        
-
-        
-
-

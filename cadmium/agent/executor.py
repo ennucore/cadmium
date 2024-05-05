@@ -11,7 +11,8 @@ import json
 
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-from agent.prompts import example_params_prompt 
+from .prompts import example_params_prompt
+from .utils import call_small_model
 
 preamble = """
 import cadquery as cq
@@ -57,40 +58,35 @@ def random_dir():
 
 
 def get_params(script_path) -> dict:
-
     with open(script_path, "r") as file:
         code = file.read()
 
-    client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
-    
-    system_prompt = ChatMessage(content= "You are a CAD agent. Your goal is to extract the parameters in the given Cadquery python code and return them as json.\n"
-                                    "The parameters can be generally found under a comment # Parameters or something similar. \n"
-                                    "Your response should contain your thoughts and a specific description of what you're extracting and then the json inside the code braces, like this:\n"
-                                    f"```{example_params_prompt}```"
-                                    "Do not include any programming language reference to the code string",
-                                    role="system"
-                                    )
-    user_prompt = ChatMessage(content= "Extract parameters from the following \n"
-                                    "Code :\n"
-                                    f"{code}",
-                                    role="user"
-                                    )
-    chat_response = client.chat(
-                    model="mistral-small-latest",
-                    messages=[system_prompt, user_prompt]
-                )
-            
-    message = chat_response.choices[0].message.content
 
-    thoughts=message.split("\n```")[0],
+    system_prompt = (
+        "You are a CAD agent. Your goal is to extract the parameters in the given Cadquery python code "
+        "and return them as json.\n"
+        "The parameters can be generally found under a comment # Parameters or something similar. \n"
+        "Your response should contain your thoughts and a specific description of what you're extracting "
+        "and then the json inside the code braces, like this:\n"
+        f"```{example_params_prompt}```"
+        "Do not include any programming language reference to the code string"
+    )
+    user_prompt = ("Extract parameters from the following \n"
+                   "Code :\n"
+                   f"{code}"
+                   )
+    message = call_small_model(system_prompt + '\n\n' + user_prompt)
 
     params = message.split("\n```", 1)[1].split("\n", 1)[1].strip().split("```")[0] if "\n```" in message else ""
-    params_json = json.loads(params) 
+    try:
+        params_json = json.loads(params)
+    except json.JSONDecodeError:
+        return {}
 
     print("PARAMS", params)
     print("PARAMS JSON", params_json)
 
-    return params_json 
+    return params_json
 
 
 def ensure_dir_exists(dir):
