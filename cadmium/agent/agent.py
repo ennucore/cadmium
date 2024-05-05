@@ -191,7 +191,7 @@ class Agent:
             response += chunk.choices[0].delta.content or ''
             if callback_function:
                 callback_function(response)
-        print(response)
+        # print(response)
         return AgentMessage.from_message(response)
 
     def add_images_message(self, stl: str) -> None:
@@ -230,8 +230,7 @@ class Agent:
             streamer = RecapStreamer(callback_function=streaming_callback).stream_non_blocking
         while not getattr(self.history[-1], "finished_successfully", False) and max_iters > 0:
             self.history.extend(self.run_step(streamer))
-            rich.print(self.history[-1])
-            rich.print(self.history[-1])
+            # rich.print(self.history[-1])
             max_iters -= 1
         return getattr(self.history[-1], "result", None)
 

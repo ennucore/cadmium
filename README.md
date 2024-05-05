@@ -6,6 +6,18 @@
 
 _CAD models at the speed of thought (or, you know, GPT-4)_
 
+[Announcement tweet and demo](https://twitter.com/ennucore/status/1783946912351027579)
+[![](./images/cat.png)](https://twitter.com/ennucore/status/1783946912351027579)
+
+## Features and demo
+
+**In this open source agent:**
+[![](./images/cli_demo.png)](https://twitter.com/ennucore/status/1783946912351027579)
+
+**In the web interface:**
+Click to see the demo video with the front-end:
+[![](./images/demo.png)](https://twitter.com/ennucore/status/1783946912351027579)
+
 
 ## Getting Started
 ```bash
@@ -20,10 +32,15 @@ After that, edit `.env` to include your [OpenRouter](https://openrouter.ai/) key
 
 You can also use an OpenAI key, but this is less tested.
 
-Then, to run (if you have conda activated):
+### Usage
+Now, to run it (if you have conda activated):
 ```bash
 $ python cadmium
 Enter a prompt for the agent: 
 ```
 
-You might need to use `conda run --no-capture-output python cadmium` if you don't have conda properly activated.
+It will show you updates, then give you the STL path in the end. You can type `o`/`open` to open the STL file in your default viewer.
+
+If you want the agent to look at it and improve it, just press enter, and it will run another iteration.
+
+If you want to change something, write a message to the agent.
