@@ -1,21 +1,31 @@
 from __future__ import annotations
 import os
 import openai
+import sys
+
+if '.' not in sys.path:
+    sys.path.append('.')
 from cadmium.stl_to_pics.render import render
 from dotenv import load_dotenv
-from multiprocessing.pool import ThreadPool
 from itertools import chain
 import json
 import glob
 import base64
 
-
 load_dotenv()
-client = openai.OpenAI(
+if os.getenv("OPENROUTER_API_KEY"):
+    client = openai.OpenAI(
         api_key=os.getenv("OPENROUTER_API_KEY"),
         base_url="https://openrouter.ai/api/v1",
         timeout=100,
     )
+    model = "openai/gpt-4-turbo-2024-04-09"
+else:
+    client = openai.OpenAI(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        timeout=100,
+    )
+    model = "gpt-4-turbo-2024-04-09"
 
 
 def stl_to_paths(stl_path: str) -> list[str]:
@@ -59,13 +69,14 @@ def visual_feedback(stl_path: str, prompt: str) -> (str, bool):
     messages = [
         {"role": "system", "content": "Your goal is to evaluate 3d models against a prompt."},
         {"role": "user", "content": [
-            {"type": "text", "text": f"The prompt for the model is as follows: \n```\n{prompt}\n```\nPlease, look at the images and provide feedback on the model: whether it fits the requirements and whether the user will be satisfied. "
-             "The images below are views of the 3d model from different sides: top, bottom, front, left."},
+            {"type": "text",
+             "text": f"The prompt for the model is as follows: \n```\n{prompt}\n```\nPlease, look at the images and provide feedback on the model: whether it fits the requirements and whether the user will be satisfied. "
+                     "The images below are views of the 3d model from different sides: top, bottom, front, left."},
             *map(path_to_openai_image, paths)
-            ]},
+        ]},
     ]
     return client.chat.completions.create(
-        model="gpt-4-turbo-2024-04-09",
+        model=model,
         messages=messages,
     ).choices[0].message.content, True
 
@@ -76,14 +87,17 @@ def pick_visually(stl_paths: list[str], prompt: str, n_to_pick: int = 2) -> list
     messages = [
         {"role": "system", "content": f"Your goal is to select **{n_to_pick}** best 3d models based on a prompt."},
         {"role": "user", "content": [
-            {"type": "text", "text": f"The prompt for the model is as follows: \n```\n{prompt}\n```\nPlease, look at the images and select {n_to_pick} best 3d models using the result function. "
-             "The images below are views of the 3d models from different sides: top, bottom, front, left."},
-            *chain(*map(lambda inp: [{"type": "text", "text": f"Model #{inp[0] + 1}.\nHere it is from top, bottom, front, left:"}, *map(path_to_openai_image, inp[1])], enumerate(paths)))
-            ]},
+            {"type": "text",
+             "text": f"The prompt for the model is as follows: \n```\n{prompt}\n```\nPlease, look at the images and select {n_to_pick} best 3d models using the result function. "
+                     "The images below are views of the 3d models from different sides: top, bottom, front, left."},
+            *chain(*map(lambda inp: [
+                {"type": "text", "text": f"Model #{inp[0] + 1}.\nHere it is from top, bottom, front, left:"},
+                *map(path_to_openai_image, inp[1])], enumerate(paths)))
+        ]},
     ]
-    
+
     response = client.chat.completions.create(
-        model="openai/gpt-4-turbo-2024-04-09",
+        model=model,
         messages=messages,
         tools=[{"type": "function", "function": {
             "name": "result", "description": "Report the selected 3d models",

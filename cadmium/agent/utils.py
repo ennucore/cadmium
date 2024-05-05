@@ -3,6 +3,8 @@ from mistralai.models.chat_completion import ChatMessage as MistralChatMessage
 import openai
 from dotenv import load_dotenv
 import os
+import subprocess
+import sys
 
 load_dotenv()
 mistral_client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
@@ -37,3 +39,17 @@ def call_small_model(prompt: str) -> str:
         )
         response = response.choices[0].message.content
         return response
+
+
+def open_file_with_default(filename):
+    try:
+        if sys.platform.startswith('darwin'):  # macOS
+            subprocess.call(['open', filename])
+        elif sys.platform.startswith('win'):  # Windows
+            subprocess.call(['start', filename], shell=True)
+        elif sys.platform.startswith('linux'):  # Linux
+            subprocess.call(['xdg-open', filename])
+        else:
+            print("Unsupported platform")
+    except Exception as e:
+        print(f"Failed to open file: {e}")

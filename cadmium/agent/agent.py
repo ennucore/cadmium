@@ -3,6 +3,7 @@ from __future__ import annotations
 from .executor import code_example, CadqueryExecutor
 from .recap_streamer import RecapStreamer
 from .prompts import examples_prompt, fixing_advice, advice
+from .visual import stl_to_paths, path_to_openai_image
 
 from dataclasses import dataclass, field
 import rich
@@ -71,7 +72,7 @@ class AgentMessage(Message):
     def run_code(self, executor: CadqueryExecutor) -> CodeExecutionFeedback | None:
         output, result, finished_successfully = executor.execute(self.code)
         if result:
-            rich.print(f"[red]{executor.base_dir + str(result)}[/red]")
+            rich.print(f"[red][bold]The model: {executor.base_dir + str(result)}[/bold][/red]")
         return CodeExecutionFeedback(
             output=output,
             result=(executor.base_dir + result) if result else None,
@@ -106,11 +107,31 @@ class UserMessage(Message):
 
 
 @dataclass
+class StlReprMessage(Message):
+    content: list[dict]
+    role: str = "system"
+
+    def to_dict(self) -> dict:
+        return {"content": self.content, "role": self.role}
+
+    @classmethod
+    def from_stl(cls, stl_path: str) -> StlReprMessage:
+        paths = stl_to_paths(stl_path)
+        return cls(
+            content=[
+                {"type": "text",
+                 "text": "The images below are views of the 3d model from different sides: top, bottom, front, left."},
+                *map(path_to_openai_image, paths)
+            ]
+        )
+
+
+@dataclass
 class Agent:
     # model: str = 'llama3-70b-8192'    # 'openai/gpt-4-turbo-2024-04-09'
     # model: str = 'meta-llama/llama-3-70b-instruct:nitro'
     model: str = "openai/gpt-4-turbo-2024-04-09" if os.getenv("OPENROUTER_API_KEY") else "gpt-4-turbo-2024-04-09"
-    history: list[UserMessage | AgentMessage | CodeExecutionFeedback] = field(
+    history: list[UserMessage | AgentMessage | CodeExecutionFeedback | StlReprMessage] = field(
         default_factory=list
     )
     executor: CadqueryExecutor = field(default_factory=CadqueryExecutor)
@@ -172,6 +193,20 @@ class Agent:
                 callback_function(response)
         print(response)
         return AgentMessage.from_message(response)
+
+    def add_images_message(self, stl: str) -> None:
+        self.history.append(StlReprMessage.from_stl(stl))
+
+    def get_last_result(self) -> str:
+        for msg in reversed(self.history):
+            if isinstance(msg, CodeExecutionFeedback):
+                return msg.result
+
+    def run_image_reflection(self, max_iters: int = 7, streaming_callback=None):
+        stl_path = self.get_last_result()
+        self.add_images_message(stl_path)
+        self.history.append(UserMessage(message="Please, look at the images and improve the model"))
+        return self.run_agent(max_iters, streaming_callback)
 
     def add_user_message(self, message: str) -> None:
         self.history.append(UserMessage(message=message))
