@@ -61,7 +61,6 @@ def get_params(script_path) -> dict:
     with open(script_path, "r") as file:
         code = file.read()
 
-
     system_prompt = (
         "You are a CAD agent. Your goal is to extract the parameters in the given Cadquery python code "
         "and return them as json.\n"
