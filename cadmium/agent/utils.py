@@ -20,7 +20,7 @@ def call_small_model(prompt: str) -> str:
         response = response.choices[0].message.content
         return response
     else:
-        if os.getenv("OPENAI_API_KEY"):
+        if os.getenv("OPENAI_API_KEY") and not os.getenv("OPENROUTER_API_KEY"):
             client = openai.OpenAI(
                 api_key=os.getenv("OPENAI_API_KEY"),
                 timeout=100,

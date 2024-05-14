@@ -23,7 +23,7 @@ load_dotenv()
 
 @dataclass
 class AgentFactory:
-    model: str = "openai/gpt-4-turbo-2024-04-09"
+    model: str = "openai/gpt-4o"
 
 
 class Message(ABC):
@@ -109,7 +109,7 @@ class UserMessage(Message):
 @dataclass
 class StlReprMessage(Message):
     content: list[dict]
-    role: str = "system"
+    role: str = "user"
 
     def to_dict(self) -> dict:
         return {"content": self.content, "role": self.role}
@@ -130,7 +130,7 @@ class StlReprMessage(Message):
 class Agent:
     # model: str = 'llama3-70b-8192'    # 'openai/gpt-4-turbo-2024-04-09'
     # model: str = 'meta-llama/llama-3-70b-instruct:nitro'
-    model: str = "openai/gpt-4-turbo-2024-04-09" if os.getenv("OPENROUTER_API_KEY") else "gpt-4-turbo-2024-04-09"
+    model: str = "openai/gpt-4o" if os.getenv("OPENROUTER_API_KEY") else "gpt-4o"
     history: list[UserMessage | AgentMessage | CodeExecutionFeedback | StlReprMessage] = field(
         default_factory=list
     )
